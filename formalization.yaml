@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "The CoEndoYoneda Lemma and its Relationship to Purity for Kleisli Categories with an Idempotent Monad"
+  description: >-
+    Formalization of Basic Functional Categories, Functional Categories, the
+    pointfree CoEndoYoneda Isomorphism Theorem, and its equivalence with
+    computational purity (monad idempotency) for Kleisli categories. Given a
+    category C and a functional functor FF : Type u ⥤ C, we define the
+    CoYoneda endofunctor CYEF(Z) = CYF(Z) ⋙ FF, the global-like endofunctor
+    G = CYEF(FF(T)), and prove the CoEndoYoneda isomorphism
+    (CYEF(Z) ⟶ (EF ⋙ G)) ≃ (FF(T) ⟶ G(EF(Z))). We prove that evaluating the
+    forward isomorphism on id_G recovers the terminal unit component
+    η.app(FF(T)), verify that Type u with the identity functor is a canonical
+    Functional Category, and prove that for the Kleisli category KleisliCat M
+    of a lawful monad M with canonical identity-on-objects functor KFF,
+    BasicFunctionalCategory (KleisliCat M) (KFF M) holds if and only if M is an
+    idempotent (pure) monad. Finally, we prove the Borceux/Lawvere-Manes
+    terminal subsingleton theorem (IsPure M → Subsingleton (M T)) and classify
+    seven standard computational effects (Option, List, Read, Write, State,
+    Cont, and ErrorState/IO).
+  authors:
+    - "Luc Duponcheel"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Luc Duponcheel"
+
+classification:
+  arxiv: ["cs.PL", "math.CT", "cs.LO"]
+  msc2020: ["18A40", "18C15", "18C20", "68N18", "68V20"]
+
+sources:
+  - title: "The CoEndoYoneda Lemma and its Relationship to Purity for Kleisli Categories with an Idempotent Monad: A Pointfree Categorical Characterization of Purity"
+    authors:
+      - "Luc Duponcheel"
+    id: "https://github.com/LucDuponcheelAtGitHub/coEndoYoneda-and-purity/blob/main/tex/paper.pdf"
+    type: "paper"
+    location: "https://github.com/LucDuponcheelAtGitHub/coEndoYoneda-and-purity/blob/main/tex/paper.pdf"
+    relationship: "formalizes"
+    note: "Accompanying paper presenting the CoEndoYoneda Isomorphism Theorem and the pointfree Kleisli characterization of purity."
+    license: "Apache-2.0"
+    author_endorsement: "participated"
+  - title: "A pointfree Yoneda lemma for endofunctors of functional categories"
+    authors:
+      - "Luc Duponcheel"
+    id: "https://www.academia.edu/109957588"
+    type: "paper"
+    location: "https://www.academia.edu/109957588"
+    relationship: "extends"
+    note: "Original paper by the author introducing functional categories and the pointfree equational proof proper of the CoEndoYoneda lemma."
+    license: "Apache-2.0"
+    author_endorsement: "participated"
+
+related_formalizations: []
+
+status:
+  scope: >-
+    Complete formalization of the CoEndoYoneda Isomorphism Theorem, the
+    universal origin of η at FF(T), the canonical SET instance, the
+    equivalence between Kleisli Basic Functional Categories and monad
+    idempotency (purity), the terminal subsingleton theorem, and the purity
+    classification of Option, List, Read, Write, State, Cont, and
+    ErrorState/IO.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: []
+
+automation:
+  methods:
+    - method: "agent"
+      models: ["Gemini"]
+      framework: "Antigravity"
+      tool_setup: "Interactive AI-assisted proof construction and verification with Lean 4, Mathlib, and Cubical Agda"
+      cost:
+        wall_time: "not tracked"
+        spend_usd: "not tracked"
+        hardware: "local machine"
+      prompting_notes: "Synchronized the Lean 4 formalization with the author's Cubical Agda development (CoEndoYoneda.lagda.md) and proved the equivalence between BasicFunctionalCategory on KleisliCat M and monad idempotency."
+  spend_usd: "not tracked"
+  notes: "The CoEndoYoneda theorem and its equational proof proper were conceived and proved by Luc Duponcheel. Both the Lean 4 formalization and the discovery and proof of the relationship with purity for Kleisli categories were developed using Gemini (Google DeepMind Antigravity) based upon mathematical prompts from the author."
+
+fidelity:
+  divergences: "none known"
+
+review:
+  status: "self-assessed"
+  reviewers:
+    - "Luc Duponcheel"
+  notes: "All definitions and theorem statements in Challenge.lean were audited against CoEndoYoneda.lagda.md and tex/paper.tex."
+
+alignment:
+  namespace: "CoEndoYonedaAndPurity"
+  statements:
+    - source: "Proposition 2.4 (prop:eta-eq-T)"
+      lean: "CoEndoYonedaAndPurity.η_eq_T"
+      module: "Solution"
+      status: "proved"
+      note: "Derives the terminal unit law η.app (FF.obj T) = g (g tt*) from the general parametric law η_eq."
+    - source: "Theorem 3.4(i) (thm:coendoyoneda)"
+      lean: "CoEndoYonedaAndPurity.fz_to_τz_commute"
+      module: "Solution"
+      status: "proved"
+      note: "Proves naturality of the reconstructed transformation fz_to_τz_hom."
+    - source: "Theorem 3.4(ii) (thm:coendoyoneda)"
+      lean: "CoEndoYonedaAndPurity.to_from_proof_hom"
+      module: "Solution"
+      status: "proved"
+      note: "Proves the section property τz_to_fz (fz_to_τz fz) = fz of the CoEndoYoneda isomorphism."
+    - source: "Theorem 3.4(iii) (thm:coendoyoneda)"
+      lean: "CoEndoYonedaAndPurity.from_to_proof'"
+      module: "Solution"
+      status: "proved"
+      note: "Proves the retraction property fz_to_τz (τz_to_fz τz) = τz componentwise."
+    - source: "Proposition 3.5 (prop:origin-eta)"
+      lean: "CoEndoYonedaAndPurity.ηFFT_is_η_at_FFT"
+      module: "Solution"
+      status: "proved"
+      note: "Proves that the CoEndoYoneda image of id_G recovers η.app (FF.obj T)."
+    - source: "Proposition 3.6 (prop:set-fc)"
+      lean: "CoEndoYonedaAndPurity.set_is_functional_category"
+      module: "Solution"
+      status: "proved"
+      note: "Establishes that Type u with the identity functor is a Functional Category."
+    - source: "Lemma 4.2 (lem:idem-ispure)"
+      lean: "CoEndoYonedaAndPurity.idempotent_iff_isPure"
+      module: "Solution"
+      status: "proved"
+      note: "Proves equivalence of Idempotent M and IsPure M."
+    - source: "Theorem 4.3 (thm:kleisli-purity)"
+      lean: "CoEndoYonedaAndPurity.kleisliBasicFunctionalCategory_iff_idempotent"
+      module: "Solution"
+      status: "proved"
+      note: "Proves that KleisliCat M with KFF M is a Basic Functional Category iff M is an idempotent monad."
+    - source: "Theorem 4.4 (thm:terminal-subsingleton)"
+      lean: "CoEndoYonedaAndPurity.isPure_implies_monadicTerminalTypeSubSingleton"
+      module: "Solution"
+      status: "proved"
+      note: "Proves the Borceux/Lawvere-Manes theorem that every mt : M T equals pure tt* for a pure monad M."
+    - source: "Theorem 5.1 (thm:examples)"
+      lean: "CoEndoYonedaAndPurity.maybe_not_pure"
+      module: "Solution"
+      status: "proved"
+      note: "Proves that Option/Maybe is not pure (along with list_not_pure, read/write/state/cont_purity_implies, and io_not_pure)."
+
+acknowledgements: "Lean 4, Mathlib, Cubical Agda, and Google DeepMind Antigravity."

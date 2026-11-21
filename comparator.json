@@ -1,0 +1,25 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "CoEndoYonedaAndPurity.η_eq_T",
+    "CoEndoYonedaAndPurity.fz_to_τz_commute",
+    "CoEndoYonedaAndPurity.to_from_proof_hom",
+    "CoEndoYonedaAndPurity.from_to_proof'",
+    "CoEndoYonedaAndPurity.ηFFT_is_η_at_FFT",
+    "CoEndoYonedaAndPurity.set_is_functional_category",
+    "CoEndoYonedaAndPurity.idempotent_iff_isPure",
+    "CoEndoYonedaAndPurity.kleisliBasicFunctionalCategory_iff_idempotent",
+    "CoEndoYonedaAndPurity.isPure_implies_monadicTerminalTypeSubSingleton",
+    "CoEndoYonedaAndPurity.maybe_not_pure",
+    "CoEndoYonedaAndPurity.list_not_pure",
+    "CoEndoYonedaAndPurity.read_purity_implies",
+    "CoEndoYonedaAndPurity.write_purity_implies",
+    "CoEndoYonedaAndPurity.state_purity_implies",
+    "CoEndoYonedaAndPurity.cont_purity_implies",
+    "CoEndoYonedaAndPurity.io_not_pure"
+  ],
+  "definition_names": [],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": true
+}
