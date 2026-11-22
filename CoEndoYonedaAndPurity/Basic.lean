@@ -71,7 +71,7 @@ def g {C : Type (u + 1)} [LargeCategory.{u} C] (FF : Type u ⥤ C)
 and the general parametric law `η_eq`. -/
 class BasicFunctionalCategory (C : Type (u + 1)) [LargeCategory.{u} C] (FF : Type u ⥤ C) where
   η : 𝟭 C ⟶ G FF
-  η_eq : ∀ (Z : Type u), η.app (FF.obj Z) = FF_hom FF (g FF (Z := Z))
+  η_eq : ∀ (Z : Type u), η.app (FF.obj Z) = FF_hom FF (g FF)
 
 /-!
 ## 2. Functional Category
