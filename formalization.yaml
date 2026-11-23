@@ -41,16 +41,26 @@ sources:
     note: "Accompanying paper presenting the CoEndoYoneda Isomorphism Theorem and the pointfree Kleisli characterization of purity."
     license: "Apache-2.0"
     author_endorsement: "participated"
-  - title: "A pointfree Yoneda lemma for endofunctors of functional categories"
+  - title: "Handbook of Categorical Algebra 2: Categories and Structures"
     authors:
-      - "Luc Duponcheel"
-    id: "https://www.academia.edu/109957588"
-    type: "paper"
-    location: "https://www.academia.edu/109957588"
-    relationship: "extends"
-    note: "Original paper by the author introducing functional categories and the pointfree equational proof proper of the CoEndoYoneda lemma."
-    license: "Apache-2.0"
-    author_endorsement: "participated"
+      - "F. Borceux"
+    id: ""
+    type: "book"
+    location: "Encyclopedia of Mathematics and its Applications, vol.~51, Cambridge University Press, 1994"
+    relationship: "idempotency and sub-singleton"
+    note: "theorem isPure_implies_monadicTerminalTypeSubSingleton_lemma"
+    license: ""
+    author_endorsement: "none"
+  - title: "Functorial semantics of algebraic theories"
+    authors:
+      - "F. W. Lawvere"
+    id: "https://doi.org/10.1073/pnas.50.5.869"
+    type: "book"
+    location: "Proceedings of the National Academy of Sciences \textbf{50} (1963), no.~5, 869--872"
+    relationship: "idempotency and sub-singleton"
+    note: "theorem isPure_implies_monadicTerminalTypeSubSingleton_lemma"
+    license: ""
+    author_endorsement: "none"
 
 related_formalizations: []
 
@@ -76,7 +86,7 @@ automation:
         wall_time: "not tracked"
         spend_usd: "not tracked"
         hardware: "local machine"
-      prompting_notes: "Synchronized the Lean 4 formalization with the author's Cubical Agda development (CoEndoYoneda.lagda.md) and proved the equivalence between BasicFunctionalCategory on KleisliCat M and monad idempotency."
+      prompting_notes: "Synchronized the Lean 4 formalization and proved the equivalence between BasicFunctionalCategory on KleisliCat M and monad idempotency."
   spend_usd: "not tracked"
   notes: "The CoEndoYoneda theorem and its equational proof proper were conceived and proved by Luc Duponcheel. Both the Lean 4 formalization and the discovery and proof of the relationship with purity for Kleisli categories were developed using Gemini (Google DeepMind Antigravity) based upon mathematical prompts from the author."
 
@@ -87,7 +97,7 @@ review:
   status: "self-assessed"
   reviewers:
     - "Luc Duponcheel"
-  notes: "All definitions and theorem statements in Challenge.lean were audited against CoEndoYoneda.lagda.md and tex/paper.tex."
+  notes: "All definitions and theorem statements in Challenge.lean were audited against tex/paper.tex."
 
 alignment:
   namespace: "CoEndoYonedaAndPurity"

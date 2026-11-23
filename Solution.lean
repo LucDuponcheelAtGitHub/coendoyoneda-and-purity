@@ -116,6 +116,9 @@ theorem cont_purity_implies (R : Type u) :
   have h1 := h.enforcingPurity (Z := R) (fun (_ : R → R) => r1)
   exact congrFun h1 (fun (_ : Cont R R) => r2)
 
+/-
+contradicting the disjointness of inl and inr
+-/
 theorem io_not_pure {E S : Type u} (e : E) (s : S) :
     ¬ IsPure (ErrorState E S) := by
   intro h

@@ -1,0 +1,1623 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\DeclareUnicodeCharacter{03B7}{\ensuremath{\eta}}
+\DeclareUnicodeCharacter{03BC}{\ensuremath{\mu}}
+\DeclareUnicodeCharacter{03C4}{\ensuremath{\tau}}
+\DeclareUnicodeCharacter{2192}{\ensuremath{\to}}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  urlcolor=blue!60!black,
+  citecolor=blue!60!black,
+  pdftitle={The CoEndoYoneda Lemma and its Relationship to a Pointfree Categorical Characterization of Purity},
+  pdfauthor={Luc Duponcheel}
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Set}{\mathbf{SET}}
+\newcommand{\Hom}{\mathrm{Hom}}
+\newcommand{\NatTrans}{\mathrm{NatTrans}}
+\newcommand{\Id}{\mathrm{Id}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\CYF}{\mathrm{CYF}}
+\newcommand{\CYEF}{\mathrm{CYEF}}
+\newcommand{\FF}{\mathrm{FF}}
+\newcommand{\KFF}{\mathrm{KFF}}
+\newcommand{\EF}{\mathrm{EF}}
+\newcommand{\K}{\mathbf{K}}
+\newcommand{\ttstar}{\mathrm{tt}^*}
+\newcommand{\const}{\mathrm{const}}
+\newcommand{\starK}{\mathbin{\star_{\K}}}
+\newcommand{\iotaZ}{\iota_Z}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}
+
+\title{\textbf{
+  A CoEndoYoneda Lemma and its Relationship to\\
+  a Pointfree Categorical Characterization of Purity
+}}
+
+\author{Luc Duponcheel}
+
+\date{November 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent The classical CoYoneda lemma is a pointful statement about $\Set$-valued \emph{functors}
+$\CYF(Z) = \Hom_{\mathcal{C}}(Z, -) : \mathcal{C} \to \Set$. In the special case where the base
+category is $\mathcal{C} = \Set$ itself, $\CYF(Z) = \Hom_{\Set}(Z, -) : \Set \to \Set$ is an
+\emph{endofunctor}.
+
+\vspace{4pt}
+
+\noindent Motivated by pointfree functional programming, where programs are morphisms in a category
+$\mathcal{C}$ equipped with a \emph{functional functor} $\FF : \Set \to \mathcal{C}$ lifting pure
+functions to morphisms, pure programs, one can compose $\CYF(Z)$ with $\FF$  to obtain an
+\emph{endofunctor} $\CYEF(Z) = \FF \circ \CYF(Z) : \mathcal{C} \to \mathcal{C}$. 
+
+\vspace{4pt}
+
+\noindent We introduce \emph{Basic Functional Categories} and \emph{Functional Categories} relative
+to $\FF$, equipped with a global-like endofunctor $G = \CYEF(\FF(T))$, where $T$ is the terminal
+set, a global-like element generator function $g_Z : Z \to \Hom_{\mathcal{C}}(\FF(T), \FF(Z))$ in
+$\Set$ defined by $g_Z(z) = \FF(\const_z)$ for the "constant $z$" function $\const_z : T \to Z$, a
+unit-like natural transformation $\eta : \Id_{\mathcal{C}} \Rightarrow G$ satisfying the parametric
+equational law $\eta_{\FF(Z)} = \FF(g_Z)$ (Equation~\eqref{eq:eta-eq}), and a multiplication-like
+natural transformation $\mu : G \circ G \Rightarrow G$ satisfying a left unit law
+$\eta_{G(Z)} \star \mu_Z = \id_{G(Z)}$ (Equation~\eqref{eq:id-left}). 
+
+\vspace{4pt}
+
+\noindent We then prove the \emph{CoEndoYoneda Isomorphism Theorem}
+(Theorem~\ref{thm:coendoyoneda}): for every object $Z \in \mathrm{ob}(\mathcal{C})$ and endofunctor
+$\EF : \mathcal{C} \to \mathcal{C}$, there is a canonical pointfree bijection
+\[
+  \NatTrans\bigl(\CYEF(Z),\, G \circ \EF\bigr)
+  \;\cong\;
+  \Hom_{\mathcal{C}}\bigl(\FF(T),\, (G \circ \EF)(Z)\bigr),
+\]
+which generalizes the classical CoYoneda canonical pointful bijection
+\[
+  \NatTrans\bigl(\CYF(Z),\, EF\bigr) 
+  \;\cong\; 
+  EF(Z)
+\]
+for endofunctors on $\Set$ (recovered when
+$\mathcal{C} = \Set$ and $\FF = \Id_{\Set}$, Proposition~\ref{prop:set-fc} and
+Subsection~\ref{subsec:coyoneda-comparison}) to any Functional Category $(\mathcal{C}, \FF)$.
+
+\vspace{4pt}
+
+\noindent Evaluating the forward isomorphism at $\EF = \Id_{\mathcal{C}}$ and $Z = \FF(T)$ on the
+identity transformation $\id_G$ recovers the terminal unit component
+$\eta_{\FF(T)} = g_{\FF(T)}(\id_{\FF(T)}) = g_{\FF(T)}(g_T(\ttstar))$, where $\ttstar$ is the single
+value of Terminal type $T$ (Proposition~\ref{prop:origin-eta}).
+
+\vspace{4pt}
+
+\noindent Next, we investigate which effectful categories of programs satisfy the Basic Functional
+Category axioms. For the Kleisli category $\K(M)$ of a monad $(M, \mathrm{mPure}, \mathrm{mApply})$
+on $\Set$ equipped with the canonical identity-on-objects embedding $\KFF : \Set \to \K(M)$, we prove
+our second main result (Theorem~\ref{thm:kleisli-purity}): \emph{$(\K(M), \KFF)$ is a Basic Functional
+Category if and only if the monad $M$ is idempotent} ($\mathrm{mMap}\;\mathrm{mPure} = \mathrm{mPure}$,
+equivalently $\mathrm{mApply}\;(\mathrm{mPure} \circ \mathrm{mPure}) = \mathrm{mPure}$). Remarkably,
+even the specialized terminal unit law $\eta_{\FF(T)} = g_{\FF(T)}(g_T(\ttstar))$
+(Proposition~\ref{prop:eta-eq-T}) suffices to force global idempotency of $M$, which in turn yields the
+full parametric law~\eqref{eq:eta-eq} definitionally. 
+
+\vspace{4pt}
+
+\noindent Thus, the Basic Functional Category law provides an elementary, pointfree,
+specification-level characterization of \emph{computational purity}. We further prove the
+Borceux/Lawvere--Manes terminal subsingleton theorem ($M(T) \cong T$ for every pure monad,
+Theorem~\ref{thm:terminal-subsingleton}), provide complete equational classifications of seven
+standard computational effects ($\mathrm{Option}$, $\mathrm{List}$, $\mathrm{Read}\;R$,
+$\mathrm{Write}\;W$, $\mathrm{State}\;S$, $\mathrm{Cont}\;R$, and $\mathrm{ErrorState}\;E\;S$,
+Theorem~\ref{thm:examples}), prove a strict separation theorem (Theorem~\ref{thm:strict-separation})
+with an explicit counterexample showing that $\mathrm{Read}\;R$ ($|R| \ge 2$) satisfies
+$M(T) \cong T$ while failing the Basic Functional Category condition, and discuss the scope,
+implications for commutative effects, and limitations of the framework
+(Subsection~\ref{subsec:limitations}).
+
+\vspace{4pt}
+
+\noindent \textbf{Provenance and Attribution Statement.}
+The mathematical formulation of Basic Functional Categories, Functional Categories, the CoEndoYoneda
+Lemma, and the equational proof proper of the CoEndoYoneda Isomorphism Theorem were conceived and
+proved by the author (Luc Duponcheel)~\cite{DuponcheelAcademia}. By contrast, the Lean~4
+mechanization and the discovery and proof of the exact equivalence between the Basic Functional
+Category structure on $\K(M)$ and monad idempotency/purity were established collaboratively
+using \emph{Gemini} (Google DeepMind Antigravity) guided by mathematical prompts from the author. Both
+the Cubical Agda development~\cite{CubicalAgdaRepo} and the Palomar-verified Lean~4
+formalization~\cite{PalomarLeanRepo} are machine-checked with zero unproved axioms or
+postulates.
+\end{abstract}
+
+\noindent \textbf{Keywords:} CoYoneda lemma, pointfree category theory, functional categories, Kleisli
+categories, idempotent monads, computational purity, Cubical Agda, Lean~4.
+
+\noindent \textbf{MSC 2020:} 18A40, 18C15, 18C20, 68N18, 68V20. \quad
+\textbf{arXiv:} \texttt{cs.PL}, \texttt{math.CT}, \texttt{cs.LO}.
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction and Motivation}\label{sec:intro}
+
+\subsection{From Pointful CoYoneda to Pointfree CoEndoYoneda}
+
+In classical category theory, CoYoneda theorems and proofs deal with $\Set$-valued functors (co-presheaves)
+\[
+  \CYF(Z) : \mathcal{C} \longrightarrow \Set,
+  \qquad
+  Y \longmapsto \Hom_{\mathcal{C}}(Z, Y),
+  \qquad
+  (y2x : Y \to X) \longmapsto (z2y \mapsto z2y \star y2x),
+\]
+where throughout this paper we write $f \star h : Z \to X$ for the diagrammatic composition of
+$f : Z \to Y$ followed by $h : Y \to X$ in $\mathcal{C}$. For any functor $F : \mathcal{C} \to \Set$,
+the classical CoYoneda lemma establishes a natural bijection
+\begin{equation}\label{eq:classical-coyoneda}
+  \NatTrans\bigl(\CYF(Z),\, F\bigr) \;\cong\; F(Z),
+\end{equation}
+mediated by the universal element $\id_Z \in \Hom_{\mathcal{C}}(Z, Z) = \CYF(Z)(Z)$ via the forward map
+$\tau \mapsto \tau_Z(\id_Z)$ and the backward map $fz \mapsto \bigl(Y \mapsto (z2y \mapsto F(z2y)(fz))\bigr)$.
+
+Notice an important special case of~\eqref{eq:classical-coyoneda}: \emph{when the base category
+$\mathcal{C}$ is $\Set$ itself, the CoYoneda functor $\CYF(Z) = \Hom_{\Set}(Z, -) : \Set \to \Set$ and
+any target functor $F = \EF : \Set \to \Set$ are both \textbf{endofunctors} on $\Set$}. Furthermore, in
+$\Set$, the set of elements $\EF(Z)$ is canonically isomorphic to the hom-set of global elements
+$\Hom_{\Set}(T, \EF(Z)) = (T \to \EF(Z))$ out of the terminal singleton set $T = \{\ttstar\}$. Thus, on
+$\mathcal{C} = \Set$, the classical CoYoneda lemma~\eqref{eq:classical-coyoneda} is already an
+\emph{endofunctor} statement relating natural transformations between endofunctors on $\Set$ to
+morphisms out of $T$:
+\[
+  \NatTrans\bigl(\CYF(Z),\, \EF\bigr)
+  \;\cong\; \EF(Z)
+  \;\cong\; \Hom_{\Set}\bigl(T,\, \EF(Z)\bigr).
+\]
+For a general category $\mathcal{C}$, however, classical CoYoneda theorems are inherently
+\emph{pointful}: they study objects and functors by passing outside $\mathcal{C}$ into the category
+$\Set$ of hom-sets and set-theoretic elements. At the same time, they serve as the bridge from a
+pointful approach to a \emph{pointfree} approach, characterizing objects by the morphisms out of them.
+
+Motivated by \emph{pointfree functional programming}, such as my Program Specification Based
+Programming (\texttt{PSBP}) architecture~\cite{PSBP}, where pure functions can be lifted to program
+morphisms, a natural foundational question arises:
+\begin{quote}
+\emph{What if the category $\mathcal{C}$ is also equipped with a ``functional functor''
+$\FF : \Set \to \mathcal{C}$ mapping functions to morphisms?}
+\end{quote}
+Whenever such a functor $\FF : \Set \to \mathcal{C}$ exists, every $\Set$-valued CoYoneda functor
+$\CYF(Z) : \mathcal{C} \to \Set$ can be composed with $\FF$ to form an \emph{endofunctor} on
+$\mathcal{C}$, just as in the $\mathcal{C} = \Set$ case:
+\[
+  \CYEF(Z) \;\coloneqq\; \FF \circ \CYF(Z) \;:\; \mathcal{C} \longrightarrow \mathcal{C}.
+\]
+We can then ask: 
+\begin{quote}
+\emph{Are there pointfree \textbf{CoEndoYoneda} theorems that generalize the
+$\mathcal{C} = \Set$ endofunctor CoYoneda lemma so that they can be formulated and proved, in a
+pointfree way, entirely in terms of endofunctors on $\mathcal{C}$?}
+\end{quote}
+
+In Sections~\ref{sec:bfc}--\ref{sec:coendoyoneda}, we show that this is indeed possible for categories
+equipped with $\FF : \Set \to \mathcal{C}$ together with two natural transformations ($\eta$ and $\mu$)
+and two simple equational laws (Equations~\eqref{eq:eta-eq} and~\eqref{eq:id-left}). 
+
+In Subsection~\ref{subsec:coyoneda-comparison}, we provide a detailed comparison of how the
+CoEndoYoneda isomorphism relates to the classical CoYoneda lemma in terms of naturality,
+universality, generalization, and specialization.
+
+\subsection{Theory Meets Practice: ``Every Disadvantage Has Its Advantage''}
+
+Having established the CoEndoYoneda theorem, the natural practical question is: 
+\begin{quote}
+\emph{For which
+categories of effectful programs can we apply this theorem?}
+\end{quote}
+
+Originally, I hoped that the CoEndoYoneda framework could be instantiated for at least a
+broad class of effectful (monadic) computations. However, testing the axioms on Kleisli categories
+$\K(M)$ revealed a surprise: the parametric unit law~\eqref{eq:eta-eq} (and even its terminal
+specialization~\eqref{eq:eta-eq-T} in Proposition~\ref{prop:eta-eq-T}) fails for impure effects such
+as $\mathrm{Option}$, $\mathrm{List}$, $\mathrm{State}\;S$, and $\mathrm{ErrorState}\;E\;S$. At first
+sight, this appeared to be bad news: the CoEndoYoneda bijection cannot be used for arbitrary effectful
+computations.
+
+Yet, in the spirit of Willem van Hanegem's famous Dutch aphorism \emph{``elk nadeel heb se voordeel''}
+(\emph{``every disadvantage has its advantage''}, often misattributed to Johan Cruyff), this apparent
+limitation turned out to be a theoretical gift:
+\begin{quote}
+\emph{For a Kleisli category $\K(M)$ with its canonical identity-on-objects functional functor
+$\KFF : \Set \to \K(M)$, the Basic Functional Category structure is \textbf{equivalent} to the
+idempotency (purity) of the monad $M$ (Theorem~\ref{thm:kleisli-purity}).}
+\end{quote}
+
+While monads are inherently \emph{pointful}, our Basic Functional Category axiom provides an
+elementary, \emph{pointfree specification-level characterization of purity} directly on the category
+of programs.
+
+\subsection{Related Work on Categorical and Pointfree Characterizations of Purity}\label{sec:related}
+
+To position our contribution within the programming languages and category theory literature, we
+compare our Basic Functional Category characterization against established categorical frameworks for
+distinguishing pure and effectful computations:
+
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item \textbf{Moggi's computational $\lambda$-calculus and strong monads~\cite{Moggi1991}:}
+  Moggi pioneered the modeling of computational effects via strong monads $(M, \eta, \mu, \mathrm{st})$
+  on a cartesian closed category $\mathcal{C}$. In Moggi's setting, pure programs are identified
+  extrinsically as those Kleisli morphisms in $\K(M)$ that factor through the canonical inclusion
+  functor $\KFF : \mathcal{C} \to \K(M)$, whereas our Theorem~\ref{thm:kleisli-purity} characterizes
+  when the entire Kleisli category $\K(M)$ collapses to pure computation via the existence of the
+  CoYoneda-induced natural transformation $\eta : \Id_{\K(M)} \Rightarrow G$.
+\vspace{4pt}
+  \item \textbf{Premonoidal categories, Freyd categories, and central morphisms~\cite{PowerRobinson1997,PowerThielecke1999,LevyPowerThielecke2003}:}
+  Power, Robinson, and Thielecke (and Levy in Fine-Grain Call-by-Value) axiomatize effectful
+  categories directly without mentioning a monad via \emph{premonoidal categories} and \emph{Freyd
+  categories} (an identity-on-objects symmetric premonoidal functor $J : \mathcal{V} \to \mathcal{K}$
+  from a cartesian category of values $\mathcal{V}$ to a premonoidal category of computations
+  $\mathcal{K}$). In a premonoidal category, a morphism $f : X \to Y$ is characterized pointfreely as
+  \emph{central} (effect-commuting) if $(f \ltimes g) = (f \rtimes g)$ for all morphisms $g$. While
+  centrality captures commutativity of effects (and hence purity relative to non-commuting effects),
+  it requires symmetric premonoidal tensor structure on $\mathcal{K}$ and still admits commutative
+  effects (such as $\mathrm{Read}\;R$ or commutative $\mathrm{Write}\;W$) in the center. By contrast,
+  our Basic Functional Category condition requires no monoidal or premonoidal tensor structure on
+  $\mathcal{C}$, and eliminates even commutative effects such as $\mathrm{Read}\;R$ (for $|R| \ge 2$)
+  and commutative $\mathrm{Write}\;W$ (for $|W| \ge 2$).
+\vspace{4pt}
+  \item \textbf{Führmann's direct models of the computational $\lambda$-calculus and thunkability~\cite{Fuhrmann1999}:}
+  Führmann gave a pointfree categorical semantics of call-by-value programming by equipping a
+  category $\mathcal{K}$ with a \emph{thunking endofunctor} $T : \mathcal{K} \to \mathcal{K}$ carrying
+  a comonad-like structure, characterizing pure (``thunkable'') morphisms $f : X \to Y$ pointfreely by
+  commutation with thunking ($f \star \vartheta_Y = \vartheta_X \star T(f)$, copyability, and
+  discardability). Our global-like endofunctor $G = \FF \circ \Hom_{\mathcal{C}}(\FF(T), -)$ plays a
+  role analogous to an intrinsic thunking functor $Y \mapsto (T \to Y)$ constructed canonically from
+  $\FF$ and $\CYF(\FF(T))$. However, whereas Führmann axiomatizes thunkable morphisms inside a general
+  effectful category using comonadic structural laws, our Definition~\ref{def:bfc} requires only a
+  single natural transformation $\eta : \Id_{\mathcal{C}} \Rightarrow G$ and the single equation
+  $\eta_{\FF(Z)} = \FF(g)$ (or $\eta_{\FF(T)} = g(g(\ttstar))$).
+\vspace{4pt}
+  \item \textbf{Lawvere theories and algebraic effects~\cite{Lawvere1963,PlotkinPower2002,PlotkinPower2003}:}
+  In the algebraic theory of effects developed by Plotkin and Power, finitary monads on $\Set$
+  correspond to Lawvere theories $\mathcal{L}$, and effectful operations are modeled by generic effects
+  or algebraic operations. Within this framework, idempotent monads on $\Set$ correspond to
+  \emph{subterminal} (or propositional) Lawvere theories in which every $n$-ary operation reduces to a
+  projection or constant, and on general categories idempotent monads correspond to reflective
+  subcategories and well-pointed endofunctors ($M\eta = \eta M$)~\cite{Kelly1980,Borceux1994,nLabIdempotentMonad,nLabWellPointed}.
+  Our Theorem~\ref{thm:kleisli-purity} bridges this classical monadic characterization ($M\eta = \eta M$)
+  with the pointfree CoEndoYoneda structure on $\K(M)$.
+\end{enumerate}
+
+\subsection{Provenance and Attribution of Results}\label{sec:provenance}
+
+In accordance with transparent human--AI scientific attribution standards (aiXiv and the Palomar
+Registry), we state the exact provenance of each contribution in this work:
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item \textbf{Human-authored core theory and proof proper:} The categorical definitions of Basic
+  Functional Categories and Functional Categories, the statement of the CoEndoYoneda Isomorphism
+  Theorem (Theorem~\ref{thm:coendoyoneda}), and its complete pointfree equational proof proper were
+  conceived, designed, and proved by Luc Duponcheel~\cite{DuponcheelAcademia}.
+\vspace{4pt}
+  \item \textbf{AI-assisted purity equivalence and formal mechanizations:} The Lean~4 formalization
+  and the discovery and proof of the exact equivalence between the Basic Functional Category structure
+  on $\K(M)$ and monad idempotency/purity (Theorem~\ref{thm:kleisli-purity}), the Borceux/Lawvere--Manes
+  terminal subsingleton diagnostic (Theorem~\ref{thm:terminal-subsingleton}), the formal classification
+  of the seven computational effects and strict separation theorem (Section~\ref{sec:examples}), and the
+  synchronized Cubical Agda and Lean~4 implementations were developed using \textbf{Gemini} (Google
+  DeepMind Antigravity) based upon targeted mathematical prompts and iterative guidance from the author.
+\end{enumerate}
+
+\section{Basic Functional Categories}\label{sec:bfc}
+
+\paragraph{Conventions and Notation.}
+Throughout this paper, let $\mathcal{C}$ be a locally small category at universe level $\ell$ with object
+collection $\mathrm{ob}(\mathcal{C})$, and for objects $Z, Y \in \mathrm{ob}(\mathcal{C})$, let
+$\Hom_{\mathcal{C}}(Z, Y) \in \mathrm{ob}(\Set_\ell)$ denote the hom-set of morphisms in $\mathcal{C}$
+from $Z$ to $Y$. Because $\mathcal{C}$ is locally small at level $\ell$, every hom-set
+$\Hom_{\mathcal{C}}(Z, Y)$ is an object of the category of sets $\Set_\ell$, and a morphism $f$ from $Z$
+to $Y$ in $\mathcal{C}$ is an element of that hom-set: we write $f : Z \to Y$ in $\mathcal{C}$ and
+$f \in \Hom_{\mathcal{C}}(Z, Y)$ synonymously.\footnote{In dependent type-theoretic proof assistants such
+as Cubical Agda and Lean~4, the hom-set $\Hom_{\mathcal{C}}(Z, Y)$ is represented as a type in
+$\mathrm{Type}\;\ell$, so set-theoretic membership $f \in \Hom_{\mathcal{C}}(Z, Y)$ is expressed by the
+typing judgment $f : \Hom_{\mathcal{C}}(Z, Y)$. In this paper we follow standard categorical notation
+$f : Z \to Y$ in $\mathcal{C}$ (or $f \in \Hom_{\mathcal{C}}(Z, Y)$) to keep the distinction between an
+individual morphism $f$ and the hom-set $\Hom_{\mathcal{C}}(Z, Y) \in \mathrm{ob}(\Set_\ell)$ completely
+explicit.}
+We write $\id_Z : Z \to Z$ for the identity morphism on $Z$, and $f \star h : Z \to X$ for the
+\emph{diagrammatic composition} of $f : Z \to Y$ followed by $h : Y \to X$ in an abstract category
+$\mathcal{C}$ (for Kleisli categories $\K(M)$ in Section~\ref{sec:purity}, we write $\starK$ for Kleisli
+composition to distinguish it from ordinary function composition $\circ$ in $\Set_\ell$). For a functor
+$F : \mathcal{C} \to \mathcal{D}$, we write $F(Z) \in \mathrm{ob}(\mathcal{D})$ for its action on an
+object $Z \in \mathrm{ob}(\mathcal{C})$ and $F(f) : F(Z) \to F(Y)$ for its action on a morphism
+$f : Z \to Y$. Given functors $F, H : \mathcal{C} \to \mathcal{D}$, a natural transformation
+$\tau : F \Rightarrow H$ (an element of $\NatTrans(F, H)$) assigns to each object
+$Y \in \mathrm{ob}(\mathcal{C})$ a component morphism $\tau_Y : F(Y) \to H(Y)$ in $\mathcal{D}$ such
+that $F(f) \star \tau_X = \tau_Y \star H(f)$ for every morphism $f : Y \to X$ in $\mathcal{C}$.
+Finally, $\Set_\ell$ (abbreviated $\Set$ when the universe level $\ell$ is clear from context) denotes
+the category of sets at universe level $\ell$ (hSets in Cubical Agda, $\mathrm{Type}\;u$ in Lean~4), in
+which objects are sets and morphisms $f : Z \to Y$ are functions.
+
+\begin{definition}\label{def:cyef}
+Given a locally small category $\mathcal{C}$ and a \emph{functional functor}
+$\FF : \Set_\ell \to \mathcal{C}$, we define:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item The \emph{CoYoneda embedding} $\CYF : \mathrm{ob}(\mathcal{C}) \to \mathrm{Functor}(\mathcal{C}, \Set_\ell)$:
+  for each $Z \in \mathrm{ob}(\mathcal{C})$,
+  \begin{align*}
+    \CYF(Z)(Y) &\coloneqq \Hom_{\mathcal{C}}(Z, Y) \;\in\; \mathrm{ob}(\Set_\ell), \\
+    \CYF(Z)(y2x) &\coloneqq \bigl(z2y \mapsto z2y \star y2x\bigr)
+      \;:\; \Hom_{\mathcal{C}}(Z, Y) \to \Hom_{\mathcal{C}}(Z, X).
+  \end{align*}
+\vspace{4 pt}
+  \item The \emph{CoYoneda endofunctor} $\CYEF : \mathrm{ob}(\mathcal{C}) \to \mathrm{Functor}(\mathcal{C}, \mathcal{C})$:
+  \[
+    \CYEF(Z) \;\coloneqq\; \FF \circ \CYF(Z) \;:\; \mathcal{C} \longrightarrow \mathcal{C}.
+  \]
+\vspace{4 pt}
+  \item The \emph{terminal set} $T \coloneqq \{ \ttstar \} \in \mathrm{ob}(\Set_\ell)$, a singleton set
+  with unique element $\ttstar \in T$.
+\vspace{4 pt}
+  \item The \emph{global-like endofunctor} $G : \mathcal{C} \to \mathcal{C}$:
+  \[
+    G \;\coloneqq\; \CYEF\bigl(\FF(T)\bigr) \;=\; \FF \circ \CYF\bigl(\FF(T)\bigr),
+  \]
+  so that $G(Y) = \FF\bigl(\Hom_{\mathcal{C}}(\FF(T), Y)\bigr)$ for $Y \in \mathrm{ob}(\mathcal{C})$ and
+  $G(y2x) = \FF(f \mapsto f \star y2x) : G(Y) \to G(X)$ for $y2x : Y \to X$.
+\vspace{4 pt}
+  \item The \emph{global-element generator} (a family of functions in $\Set_\ell$ indexed by sets
+  $Z \in \mathrm{ob}(\Set_\ell)$): for each set $Z \in \mathrm{ob}(\Set_\ell)$ and each element
+  $z \in Z$, let $\const_z : T \to Z$ denote the constant function $\const_z(t) \coloneqq z$ in
+  $\Set_\ell$. Applying the functor $\FF : \Set_\ell \to \mathcal{C}$ to the morphism
+  $\const_z : T \to Z$ in $\Set_\ell$ yields a morphism $\FF(\const_z) : \FF(T) \to \FF(Z)$ in
+  $\mathcal{C}$, i.e., an element of the hom-set $\Hom_{\mathcal{C}}(\FF(T), \FF(Z)) \in \mathrm{ob}(\Set_\ell)$.
+  We therefore define the function $g_Z : Z \to \Hom_{\mathcal{C}}(\FF(T), \FF(Z))$ in $\Set_\ell$
+  (often written simply $g$ when the domain set $Z$ is clear from context) by:
+  \begin{equation}\label{eq:def-g}
+    \begin{aligned}
+      g_Z &\;:\; Z \longrightarrow \Hom_{\mathcal{C}}\bigl(\FF(T),\, \FF(Z)\bigr)
+      \quad\text{in }\Set_\ell, \\
+      g_Z(z) &\;\coloneqq\; \FF(\const_z) \;\in\; \Hom_{\mathcal{C}}\bigl(\FF(T),\, \FF(Z)\bigr).
+    \end{aligned}
+  \end{equation}
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[Two-level typing of $g_Z$ and $\FF(g_Z)$]\label{rem:g-typing}
+Because the construction of $g_Z$ and $\FF(g_Z)$ crosses back and forth between $\Set_\ell$ and
+$\mathcal{C}$ via the functor $\FF : \Set_\ell \to \mathcal{C}$, it is helpful to trace the exact types
+at each step:
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item For each element $z \in Z$, $\const_z = (\_ \mapsto z) : T \to Z$ is a function (a morphism in
+  $\Set_\ell$).
+\vspace{4 pt}
+  \item Applying the functor $\FF$ to $\const_z$ produces a morphism
+  $g_Z(z) = \FF(\const_z) : \FF(T) \to \FF(Z)$ in $\mathcal{C}$. Viewed as an element of the hom-set,
+  $g_Z(z) \in \Hom_{\mathcal{C}}(\FF(T), \FF(Z)) = \CYF(\FF(T))(\FF(Z))$.
+\vspace{4 pt}
+  \item Consequently, the assignment $z \mapsto g_Z(z)$ is a well-defined \emph{function in $\Set_\ell$}
+  from the set $Z \in \mathrm{ob}(\Set_\ell)$ to the hom-set
+  $\Hom_{\mathcal{C}}(\FF(T), \FF(Z)) \in \mathrm{ob}(\Set_\ell)$:
+  \[
+    g_Z \;\in\; \Hom_{\Set_\ell}\Bigl(Z,\, \Hom_{\mathcal{C}}\bigl(\FF(T), \FF(Z)\bigr)\Bigr)
+    \;=\; \Hom_{\Set_\ell}\Bigl(Z,\, \CYF(\FF(T))\bigl(\FF(Z)\bigr)\Bigr).
+  \]
+\vspace{4 pt}
+  \item Finally, because $g_Z$ is a morphism in $\Set_\ell$, we can apply the functor
+  $\FF : \Set_\ell \to \mathcal{C}$ a \emph{second} time, now to the function $g_Z$ itself, to obtain
+  a morphism in $\mathcal{C}$:
+  \[
+    \FF(g_Z) \;:\; \FF(Z) \longrightarrow \FF\Bigl(\Hom_{\mathcal{C}}\bigl(\FF(T), \FF(Z)\bigr)\Bigr)
+    \;=\; G\bigl(\FF(Z)\bigr)
+    \quad\text{in }\mathcal{C}.
+  \]
+\end{enumerate}
+Notice that $\FF(g_Z)$ has the exact same domain $\FF(Z)$ and codomain $G(\FF(Z))$ in $\mathcal{C}$ as
+the component $\eta_{\FF(Z)} : \FF(Z) \to G(\FF(Z))$ of any natural transformation
+$\eta : \Id_{\mathcal{C}} \Rightarrow G$. Equation~\eqref{eq:eta-eq} below simply asserts that these two
+morphisms in $\Hom_{\mathcal{C}}(\FF(Z), G(\FF(Z)))$ are equal.
+\end{remark}
+
+\begin{lemma}\label{lem:g-id}
+For every element $t \in T$, $g_T(t) = \id_{\FF(T)}$. In particular, $g_T(\ttstar) = \id_{\FF(T)}$.
+\end{lemma}
+
+\begin{proof}
+Since $T = \{\ttstar\}$ has a unique inhabitant, any element $t \in T$ satisfies $t = \ttstar$, and
+the constant function $\const_t = (\_ \mapsto t) : T \to T$ is extensionally equal to the identity
+function $(z \mapsto z) = \id_T : T \to T$. By functoriality of $\FF$ (preservation of identities),
+\[
+  g_T(t) \;=\; \FF(\const_t) \;=\; \FF(\id_T) \;=\; \id_{\FF(T)}.
+\]
+Instantiating at $t = \ttstar$ gives $g_T(\ttstar) = \id_{\FF(T)}$.
+\end{proof}
+
+\begin{definition}\label{def:bfc}
+A \emph{Basic Functional Category} over $(\mathcal{C}, \FF)$ consists of:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item A ``monad unit-like'' natural transformation $\eta : \Id_{\mathcal{C}} \Rightarrow G$ between
+  the identity endofunctor $\Id_{\mathcal{C}} : \mathcal{C} \to \mathcal{C}$ and the global-like
+  endofunctor $G : \mathcal{C} \to \mathcal{C}$, with component morphisms
+  \[
+    \eta_Y \;:\; Y \longrightarrow G(Y)
+    \qquad\bigl(\text{i.e., }\eta_Y \in \Hom_{\mathcal{C}}(Y, G(Y))\bigr)
+  \]
+  for each $Y \in \mathrm{ob}(\mathcal{C})$, satisfying the naturality condition
+  $f \star \eta_X = \eta_Y \star G(f)$ for every morphism $f : Y \to X$ in $\mathcal{C}$;
+\vspace{4 pt}  
+  \item The general parametric equational law: for every set $Z \in \mathrm{ob}(\Set_\ell)$,
+  \begin{equation}\label{eq:eta-eq}
+    \eta_{\FF(Z)} \;=\; \FF(g_Z)
+    \quad:\quad
+    \FF(Z) \longrightarrow G\bigl(\FF(Z)\bigr)
+    \quad\text{in }\mathcal{C},
+  \end{equation}
+  where $g_Z : Z \to \Hom_{\mathcal{C}}(\FF(T), \FF(Z))$ is the global-element generator function in
+  $\Set_\ell$ from Definition~\ref{def:cyef}(v) and Remark~\ref{rem:g-typing}.
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}\label{prop:eta-eq-T}
+In any Basic Functional Category $(\mathcal{C}, \FF)$, let $H_T \coloneqq \Hom_{\mathcal{C}}(\FF(T), \FF(T))
+\in \mathrm{ob}(\Set_\ell)$. Then the component of $\eta$ at $\FF(T)$ satisfies the terminal unit law:
+\begin{equation}\label{eq:eta-eq-T}
+  \eta_{\FF(T)} \;=\; g_{H_T}\bigl(g_T(\ttstar)\bigr) \;=\; g_{H_T}\bigl(\id_{\FF(T)}\bigr)
+  \quad:\quad
+  \FF(T) \longrightarrow G\bigl(\FF(T)\bigr),
+\end{equation}
+or in subscript-free shorthand, $\eta_{\FF(T)} = g(g(\ttstar)) = g(\id_{\FF(T)})$.
+\end{proposition}
+
+\begin{proof}
+Instantiating the general parametric law~\eqref{eq:eta-eq} at $Z = T$ gives
+$\eta_{\FF(T)} = \FF(g_T)$, where $g_T : T \to H_T$ with $H_T = \Hom_{\mathcal{C}}(\FF(T), \FF(T))$.
+Because $T = \{\ttstar\}$ is the terminal set, every $t \in T$ equals $\ttstar$, so $g_T : T \to H_T$
+is equal to the constant function $\const_{g_T(\ttstar)} = (\_ \mapsto g_T(\ttstar)) : T \to H_T$. By
+Definition~\ref{def:cyef}(v) applied to the set $H_T \in \mathrm{ob}(\Set_\ell)$ and the element
+$g_T(\ttstar) \in H_T$, we have
+\[
+  \eta_{\FF(T)} \;=\; \FF(g_T) \;=\; \FF\bigl(\const_{g_T(\ttstar)}\bigr) \;=\; g_{H_T}\bigl(g_T(\ttstar)\bigr).
+\]
+Finally, $g_T(\ttstar) = \id_{\FF(T)}$ by Lemma~\ref{lem:g-id}, so
+$g_{H_T}(g_T(\ttstar)) = g_{H_T}(\id_{\FF(T)})$.
+\end{proof}
+
+\section{Functional Categories and the CoEndoYoneda Isomorphism}\label{sec:coendoyoneda}
+
+\begin{definition}\label{def:fc}
+A \emph{Functional Category} over $(\mathcal{C}, \FF)$ is a Basic Functional Category over
+$(\mathcal{C}, \FF)$ equipped with:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item A ``monad multiplication-like'' natural transformation $\mu : G \circ G \Rightarrow G$, with
+  component morphisms
+  \[
+    \mu_Y \;:\; G\bigl(G(Y)\bigr) \longrightarrow G(Y)
+    \qquad\bigl(\text{i.e., }\mu_Y \in \Hom_{\mathcal{C}}(G(G(Y)), G(Y))\bigr)
+  \]
+  for each $Y \in \mathrm{ob}(\mathcal{C})$, satisfying the naturality condition
+  $G(G(f)) \star \mu_X = \mu_Y \star G(f)$ for every morphism $f : Y \to X$ in $\mathcal{C}$;
+\vspace{4 pt}
+  \item T4 pthe monadic left identity law: for every object $Z \in \mathrm{ob}(\mathcal{C})$,
+  \begin{equation}\label{eq:id-left}
+    \eta_{G(Z)} \star \mu_Z \;=\; \id_{G(Z)}
+    \quad:\quad
+    G(Z) \longrightarrow G(Z).
+  \end{equation}
+\end{enumerate}
+\end{definition}
+
+\begin{remark}
+Notice that neither the right unit law $G(\eta_Z) \star \mu_Z = \id_{G(Z)}$ nor the associativity law
+$\mu_{G(Z)} \star \mu_Z = G(\mu_Z) \star \mu_Z$ is required to establish the CoEndoYoneda isomorphism
+below: only the left identity law~\eqref{eq:id-left} is needed.
+\end{remark}
+
+\subsection{Statement and Construction of the CoEndoYoneda Isomorphism}
+
+Fix a Functional Category $(\mathcal{C}, \FF)$, an object $Z \in \mathrm{ob}(\mathcal{C})$, and an
+endofunctor $\EF : \mathcal{C} \to \mathcal{C}$. Set:
+\[
+  G\circ\EF \;\coloneqq\; G \circ \EF : \mathcal{C} \to \mathcal{C},
+  \qquad
+  \CYF\circ G\circ\EF \;\coloneqq\; \CYF(\FF(T)) \circ G \circ \EF : \mathcal{C} \to \Set_\ell.
+\]
+Observe that the set $(\CYF\circ G\circ\EF)(Z)$ is the hom-set of global-like elements of
+$(G \circ \EF)(Z)$:
+\[
+  (\CYF\circ G\circ\EF)(Z) \;=\; \Hom_{\mathcal{C}}\bigl(\FF(T),\, G(\EF(Z))\bigr).
+\]
+In the classical CoYoneda lemma~\eqref{eq:classical-coyoneda}, the forward isomorphism evaluates a
+natural transformation $\tau : \CYF(Z) \Rightarrow F$ on the identity morphism
+$\id_Z \in \Hom_{\mathcal{C}}(Z, Z) = \CYF(Z)(Z)$. In our pointfree setting, we lift the element
+$\id_Z \in \Hom_{\mathcal{C}}(Z, Z)$ to a global-element morphism $\iotaZ : \FF(T) \to \CYEF(Z)(Z)$ in
+$\mathcal{C}$ via the global-element generator~\eqref{eq:def-g} on the set
+$\Hom_{\mathcal{C}}(Z, Z) \in \mathrm{ob}(\Set_\ell)$:
+\begin{equation}\label{eq:def-iotaZ}
+  \iotaZ \;\coloneqq\; g_{\Hom_{\mathcal{C}}(Z, Z)}(\id_Z) \;=\; \FF(\const_{\id_Z})
+  \;:\; \FF(T) \longrightarrow \CYEF(Z)(Z),
+\end{equation}
+where $\const_{\id_Z} = (\_ \mapsto \id_Z) : T \to \Hom_{\mathcal{C}}(Z, Z)$ and
+$\CYEF(Z)(Z) = \FF(\Hom_{\mathcal{C}}(Z, Z))$.
+
+\begin{definition}\label{def:witness-maps}
+We define two maps between $\NatTrans(\CYEF(Z), G \circ \EF)$ and $(\CYF\circ G\circ\EF)(Z)$:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item \textbf{Forward extraction map} $\mathrm{to} = (\tau_Z \mapsto f_Z)$: given a natural
+  transformation $\tau_Z : \CYEF(Z) \Rightarrow G \circ \EF$, define the morphism
+  \begin{equation}\label{eq:tau-to-f}
+    \tau_Z \to f_Z \;\coloneqq\; \iotaZ \star (\tau_Z)_Z
+    \;:\; \FF(T) \longrightarrow G\bigl(\EF(Z)\bigr)
+    \quad\text{in }\Hom_{\mathcal{C}}\bigl(\FF(T),\, G(\EF(Z))\bigr).
+  \end{equation}
+  \item \textbf{Backward reconstruction map} $\mathrm{from} = (f_Z \mapsto \tau_Z)$: given
+  $f_Z \in \Hom_{\mathcal{C}}(\FF(T), G(\EF(Z)))$, define for each object $Y \in \mathrm{ob}(\mathcal{C})$
+  the auxiliary function in $\Set_\ell$
+  \[
+    \alpha_{f_Z, Y} : \Hom_{\mathcal{C}}(Z, Y) \longrightarrow \Hom_{\mathcal{C}}\bigl(\FF(T),\, G(\EF(Y))\bigr),
+    \qquad
+    z2y \longmapsto f_Z \star (G \circ \EF)(z2y),
+  \]
+  and set the component morphism $(f_Z \to \tau_Z)_Y : \CYEF(Z)(Y) \to G(\EF(Y))$ in $\mathcal{C}$ to be
+  \begin{equation}\label{eq:f-to-tau}
+    (f_Z \to \tau_Z)_Y \;\coloneqq\; \FF(\alpha_{f_Z, Y}) \star \mu_{\EF(Y)}
+    \;:\; \CYEF(Z)(Y) \longrightarrow G\bigl(\EF(Y)\bigr).
+  \end{equation}
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}\label{thm:coendoyoneda}
+In any Functional Category $(\mathcal{C}, \FF)$, for every object $Z \in \mathrm{ob}(\mathcal{C})$ and
+every endofunctor $\EF : \mathcal{C} \to \mathcal{C}$:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item For every $f_Z \in (\CYF\circ G\circ\EF)(Z)$, the family $(f_Z \to \tau_Z)_Y$ defined in
+  \eqref{eq:f-to-tau} is natural in $Y$, defining a natural transformation
+  $(f_Z \to \tau_Z) : \CYEF(Z) \Rightarrow G \circ \EF$.
+\vspace{4 pt}
+  \item \textbf{Section:} For every $f_Z \in (\CYF\circ G\circ\EF)(Z)$,
+  \[
+    (f_Z \to \tau_Z) \to f_Z \;=\; f_Z.
+  \]
+\vspace{4 pt}
+  \item \textbf{Retraction:} For every
+  $\tau_Z \in \NatTrans(\CYEF(Z), G \circ \EF)$,
+  \[
+    (\tau_Z \to f_Z) \to \tau_Z \;=\; \tau_Z.
+  \]
+\end{enumerate}
+Consequently, $(\tau_Z \to f_Z)$ and $(f_Z \to \tau_Z)$ form a bijection (isomorphism of types)
+\[
+  \NatTrans\bigl(\CYEF(Z),\, G \circ \EF\bigr)
+  \;\cong\;
+  \Hom_{\mathcal{C}}\bigl(\FF(T),\, (G \circ \EF)(Z)\bigr).
+\]
+\end{theorem}
+
+\begin{proof}
+We follow the equational chains formalized in~\cite{CubicalAgdaRepo} and mechanized
+in~\cite{PalomarLeanRepo}.
+
+\textbf{Part (i): Naturality of $f_Z \to \tau_Z$.}
+First, for any morphisms $y2x : Y \to X$ and $z2y : Z \to Y$ in $\mathcal{C}$, functoriality of
+$G \circ \EF$ and associativity of composition in $\mathcal{C}$ give:
+\begin{align*}
+  f_Z \star (G\circ\EF)(z2y \star y2x)
+  &= f_Z \star \bigl((G\circ\EF)(z2y) \star (G\circ\EF)(y2x)\bigr) \\
+  &= \bigl(f_Z \star (G\circ\EF)(z2y)\bigr) \star (G\circ\EF)(y2x).
+\end{align*}
+Now let $y2x : Y \to X$ in $\mathcal{C}$. Using $\CYEF(Z)(y2x) = \FF(z2y \mapsto z2y \star y2x)$,
+functoriality of $\FF$ on composite functions, the definition
+$(G \circ G)(\EF(y2x)) = \FF(h \mapsto h \star (G\circ\EF)(y2x))$, and naturality of $\mu$ at
+$\EF(y2x)$:
+\begin{align*}
+  &\CYEF(Z)(y2x) \star (f_Z \to \tau_Z)_X \\
+  &\quad= \CYEF(Z)(y2x) \star \bigl(\FF(\alpha_{f_Z, X}) \star \mu_{\EF(X)}\bigr)
+   \;=\; \bigl(\CYEF(Z)(y2x) \star \FF(\alpha_{f_Z, X})\bigr) \star \mu_{\EF(X)} \\
+  &\quad= \FF\bigl(z2y \mapsto f_Z \star (G\circ\EF)(z2y \star y2x)\bigr) \star \mu_{\EF(X)} \\
+  &\quad= \FF\bigl(z2y \mapsto (f_Z \star (G\circ\EF)(z2y)) \star (G\circ\EF)(y2x)\bigr) \star \mu_{\EF(X)} \\
+  &\quad= \bigl(\FF(\alpha_{f_Z, Y}) \star (G \circ G)(\EF(y2x))\bigr) \star \mu_{\EF(X)}
+   \;=\; \FF(\alpha_{f_Z, Y}) \star \bigl((G \circ G)(\EF(y2x)) \star \mu_{\EF(X)}\bigr) \\
+  &\quad= \FF(\alpha_{f_Z, Y}) \star \bigl(\mu_{\EF(Y)} \star (G\circ\EF)(y2x)\bigr) \\
+  &\quad= \bigl(\FF(\alpha_{f_Z, Y}) \star \mu_{\EF(Y)}\bigr) \star (G\circ\EF)(y2x)
+   \;=\; (f_Z \to \tau_Z)_Y \star (G\circ\EF)(y2x).
+\end{align*}
+
+\textbf{Part (ii): Section.}
+Let $f_Z : \FF(T) \to G(\EF(Z))$. Using $(G\circ\EF)(\id_Z) = \id_{G(\EF(Z))}$, Lemma~\ref{lem:g-id}
+($\id_{\FF(T)} = g_T(t)$ for $t \in T$), functoriality of $\FF$ on $g_T$ followed by
+$(h \mapsto h \star f_Z)$, the parametric unit law~\eqref{eq:eta-eq} at $Z = T$
+($\FF(g_T) = \eta_{\FF(T)}$), naturality of $\eta$ on $f_Z$, and the left identity
+law~\eqref{eq:id-left}:
+\begin{align*}
+  ((f_Z \to \tau_Z) \to f_Z)
+  &= \iotaZ \star \bigl(\FF(z2z \mapsto f_Z \star (G\circ\EF)(z2z)) \star \mu_{\EF(Z)}\bigr) \\
+  &= \bigl(g(\id_Z) \star \FF(z2z \mapsto f_Z \star (G\circ\EF)(z2z))\bigr) \star \mu_{\EF(Z)} \\
+  &= g\bigl(f_Z \star (G\circ\EF)(\id_Z)\bigr) \star \mu_{\EF(Z)} \\
+  &= g(f_Z \star \id_{G(\EF(Z))}) \star \mu_{\EF(Z)} \;=\; g(f_Z) \star \mu_{\EF(Z)}
+   \;=\; g(\id_{\FF(T)} \star f_Z) \star \mu_{\EF(Z)} \\
+  &= \FF\bigl(t \mapsto g_T(t) \star f_Z\bigr) \star \mu_{\EF(Z)} \\
+  &= \bigl(\FF(g_T) \star G(f_Z)\bigr) \star \mu_{\EF(Z)} \\
+  &= \FF(g_T) \star \bigl(G(f_Z) \star \mu_{\EF(Z)}\bigr) \\
+  &= \eta_{\FF(T)} \star \bigl(G(f_Z) \star \mu_{\EF(Z)}\bigr) \\
+  &= \bigl(\eta_{\FF(T)} \star G(f_Z)\bigr) \star \mu_{\EF(Z)} \\
+  &= \bigl(f_Z \star \eta_{G(\EF(Z))}\bigr) \star \mu_{\EF(Z)} \\
+  &= f_Z \star \bigl(\eta_{G(\EF(Z))} \star \mu_{\EF(Z)}\bigr)
+   \;=\; f_Z \star \id_{G(\EF(Z))} \;=\; f_Z.
+\end{align*}
+
+\textbf{Part (iii): Retraction.}
+Let $\tau_Z : \CYEF(Z) \Rightarrow G \circ \EF$ and $Y \in \mathrm{ob}(\mathcal{C})$. Applying
+associativity, naturality of $\tau_Z$ along $z2y : Z \to Y$, the identity
+$\iotaZ \star \CYEF(Z)(z2y) = g(\id_Z \star z2y) = g(z2y)$, the parametric unit
+law~\eqref{eq:eta-eq} at the hom-set $H_{Z,Y} \coloneqq \Hom_{\mathcal{C}}(Z, Y)$
+($\FF(g_{H_{Z,Y}}) = \eta_{\FF(\Hom_{\mathcal{C}}(Z, Y))} = \eta_{\CYEF(Z)(Y)}$), naturality of $\eta$
+along $(\tau_Z)_Y$, and the left identity law~\eqref{eq:id-left}:
+\begin{align*}
+  ((\tau_Z \to f_Z) \to \tau_Z)_Y
+  &= \FF\bigl(z2y \mapsto (\iotaZ \star (\tau_Z)_Z) \star (G\circ\EF)(z2y)\bigr) \star \mu_{\EF(Y)} \\
+  &= \FF\bigl(z2y \mapsto \iotaZ \star ((\tau_Z)_Z \star (G\circ\EF)(z2y))\bigr) \star \mu_{\EF(Y)} \\
+  &= \FF\bigl(z2y \mapsto \iotaZ \star (\CYEF(Z)(z2y) \star (\tau_Z)_Y)\bigr) \star \mu_{\EF(Y)} \\
+  &= \FF\bigl(z2y \mapsto (\iotaZ \star \CYEF(Z)(z2y)) \star (\tau_Z)_Y\bigr) \star \mu_{\EF(Y)} \\
+  &= \FF\bigl(z2y \mapsto g(\id_Z \star z2y) \star (\tau_Z)_Y\bigr) \star \mu_{\EF(Y)} \\
+  &= \FF\bigl(z2y \mapsto g(z2y) \star (\tau_Z)_Y\bigr) \star \mu_{\EF(Y)} \\
+  &= \bigl(\FF(g_{H_{Z,Y}}) \star G((\tau_Z)_Y)\bigr) \star \mu_{\EF(Y)} \\
+  &= \FF(g_{H_{Z,Y}}) \star \bigl(G((\tau_Z)_Y) \star \mu_{\EF(Y)}\bigr) \\
+  &= \eta_{\CYEF(Z)(Y)} \star \bigl(G((\tau_Z)_Y) \star \mu_{\EF(Y)}\bigr) \\
+  &= \bigl(\eta_{\CYEF(Z)(Y)} \star G((\tau_Z)_Y)\bigr) \star \mu_{\EF(Y)} \\
+  &= \bigl((\tau_Z)_Y \star \eta_{G(\EF(Y))}\bigr) \star \mu_{\EF(Y)} \\
+  &= (\tau_Z)_Y \star \bigl(\eta_{G(\EF(Y))} \star \mu_{\EF(Y)}\bigr)
+   \;=\; (\tau_Z)_Y \star \id_{G(\EF(Y))} \;=\; (\tau_Z)_Y.
+\end{align*}
+By extensionality of natural transformations, $((\tau_Z \to f_Z) \to \tau_Z) = \tau_Z$.
+\end{proof}
+
+\subsection{Connecting the CoEndoYoneda Isomorphism to $\eta$ at $\FF(T)$}
+
+When we specialize Theorem~\ref{thm:coendoyoneda} to $\EF = \Id_{\mathcal{C}}$ and $Z = \FF(T)$, the
+domain functor of the left-hand side becomes $\CYEF(\FF(T)) = G$, and the codomain functor becomes
+$G \circ \Id_{\mathcal{C}} = G$. Hence the left-hand side contains the canonical identity natural
+transformation $\id_G : G \Rightarrow G$.
+
+\begin{proposition}\label{prop:origin-eta}
+Define the morphism
+\[
+  \eta_{\FF(T)}^{\mathrm{CY}} \;\coloneqq\; (\id_G \to f_{\FF(T)})
+  \;:\; \FF(T) \longrightarrow G\bigl(\FF(T)\bigr)
+\]
+as the image of $\id_G$ under the forward map~\eqref{eq:tau-to-f} of the CoEndoYoneda isomorphism at
+$\EF = \Id_{\mathcal{C}}$ and $Z = \FF(T)$. Then in any Basic Functional Category,
+\[
+  \eta_{\FF(T)}^{\mathrm{CY}} \;=\; \eta_{\FF(T)}.
+\]
+\end{proposition}
+
+\begin{proof}
+Unfolding \eqref{eq:tau-to-f} at $\tau = \id_G$, and applying right identity, Lemma~\ref{lem:g-id},
+and Proposition~\ref{prop:eta-eq-T}:
+\[
+  \eta_{\FF(T)}^{\mathrm{CY}}
+  \;=\; \iota_{\FF(T)} \star \id_{G(\FF(T))}
+  \;=\; g(\id_{\FF(T)})
+  \;=\; g\bigl(g(\ttstar)\bigr)
+  \;=\; \eta_{\FF(T)}.
+  \qedhere
+\]
+\end{proof}
+
+\subsection{Canonical Concrete Instance: $\Set$ as a Functional Category}
+
+\begin{proposition}\label{prop:set-fc}
+In the category $\mathcal{C} = \Set_\ell$ with $\FF = \Id_{\Set_\ell}$, we have
+$G(Y) = \CYEF(T)(Y) = (T \to Y) \cong Y$. Define for each $Z \in \mathrm{ob}(\Set_\ell)$:
+\[
+  \eta_Z(z) \;\coloneqq\; \const_z \;:\; T \to Z,
+  \qquad
+  \mu_Z(h) \;\coloneqq\; (t \mapsto h(t)(t)) \;:\; T \to Z
+  \quad\text{for } h : T \to (T \to Z).
+\]
+Then $\eta : \Id_{\Set_\ell} \Rightarrow G$ and $\mu : G \circ G \Rightarrow G$ are natural
+transformations, and the laws \eqref{eq:eta-eq}, \eqref{eq:eta-eq-T}, and \eqref{eq:id-left} all hold
+definitionally.
+\end{proposition}
+
+\begin{proof}
+Since $\FF = \Id_{\Set_\ell}$, $\FF(g_Z)(z) = g_Z(z) = \const_z = \eta_Z(z)$ definitionally, proving
+\eqref{eq:eta-eq} (and hence \eqref{eq:eta-eq-T}) by reflexivity. For any $h : T \to Z$ and $t \in T$,
+$(\eta_{G(Z)} \star \mu_Z)(h)(t) = \mu_Z(\_ \mapsto h)(t) = (\_ \mapsto h)(t)(t) = h(t)$, so
+$\eta_{G(Z)} \star \mu_Z = \id_{G(Z)}$ holds definitionally by $\beta\eta$-reduction.
+\end{proof}
+
+\subsection{Relationship to the Classical CoYoneda Lemma: Naturality, Universality, Generalization, and Specialization}\label{subsec:coyoneda-comparison}
+
+It is illuminating to compare the CoEndoYoneda Isomorphism Theorem (Theorem~\ref{thm:coendoyoneda})
+with the classical CoYoneda lemma~\eqref{eq:classical-coyoneda} across four foundational dimensions:
+
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item \textbf{Endofunctor coincidence on $\mathcal{C} = \Set$ and generalization to $(\mathcal{C}, \FF)$:}
+  In the classical CoYoneda lemma $\NatTrans(\CYF(Z), F) \cong F(Z)$, the domain functor
+  $\CYF(Z) = \Hom_{\mathcal{C}}(Z, -) : \mathcal{C} \to \Set$ is always $\Set$-valued. In the special
+  case where the base category $\mathcal{C}$ is $\Set$ itself, $\CYF(Z) : \Set \to \Set$ and
+  $F = \EF : \Set \to \Set$ are both \emph{endofunctors} on $\Set$. When we instantiate our
+  CoEndoYoneda Isomorphism Theorem~\ref{thm:coendoyoneda} at the canonical Functional Category
+  $(\mathcal{C}, \FF) = (\Set, \Id_{\Set})$ of Proposition~\ref{prop:set-fc}, we have
+  $\CYEF(Z) = \Id_{\Set} \circ \CYF(Z) = \CYF(Z)$, $G = (T \to -) \cong \Id_{\Set}$, and
+  \[
+    \NatTrans\bigl(\CYEF(Z),\, G \circ \EF\bigr)
+    \;\cong\;
+    \Hom_{\Set}\bigl(T,\, G(\EF(Z))\bigr)
+    \;=\;
+    \bigl(T \to (T \to \EF(Z))\bigr)
+    \;\cong\;
+    \EF(Z),
+  \]
+  which recovers the classical CoYoneda lemma for endofunctors on $\Set$. Conversely, for an arbitrary
+  Functional Category $(\mathcal{C}, \FF)$, Theorem~\ref{thm:coendoyoneda} \emph{generalizes} this
+  endofunctor CoYoneda isomorphism from $\Set$ to endofunctors on $\mathcal{C}$ by lifting $\CYF(Z)$ to
+  $\CYEF(Z) = \FF \circ \CYF(Z) : \mathcal{C} \to \mathcal{C}$ and replacing set-theoretic elements of
+  $F(Z)$ by global-like morphisms $\FF(T) \to G(\EF(Z))$ in $\mathcal{C}$.
+
+  \vspace{3pt}
+  \item \textbf{Pointfree universality and the universal morphism $\iotaZ$:}
+  In the classical CoYoneda lemma, the pair $(Z, \id_Z \in \CYF(Z)(Z))$ is the universal element of the
+  representable presheaf $\CYF(Z)$: every natural transformation $\tau : \CYF(Z) \Rightarrow F$ is
+  uniquely determined by the single element $x = \tau_Z(\id_Z) \in F(Z)$. In a general category
+  $\mathcal{C}$, however, the object $\CYEF(Z)(Z) = \FF(\Hom_{\mathcal{C}}(Z, Z)) \in \mathrm{ob}(\mathcal{C})$
+  is an abstract object of $\mathcal{C}$ rather than a set, so it has no ``elements'' in the pointful
+  sense. In Theorem~\ref{thm:coendoyoneda}, the role of the universal element $\id_Z$ is played
+  pointfreely by the universal global-element morphism
+  \[
+    \iotaZ \;=\; g_{\Hom_{\mathcal{C}}(Z, Z)}(\id_Z) \;=\; \FF(\const_{\id_Z})
+    \;:\; \FF(T) \longrightarrow \CYEF(Z)(Z)
+    \quad\text{in }\mathcal{C},
+  \]
+  and evaluation at $\id_Z$ is replaced by diagrammatic precomposition $\tau_Z \mapsto \iotaZ \star (\tau_Z)_Z$.
+  Moreover, Proposition~\ref{prop:origin-eta} shows that the universal element corresponding to the
+  identity natural transformation $\id_G : G \Rightarrow G$ at $Z = \FF(T)$ is precisely the terminal
+  unit component $\eta_{\FF(T)} = \iota_{\FF(T)} \star \id_{G(\FF(T))} = g(\id_{\FF(T)})$.
+
+  \vspace{3pt}
+  \item \textbf{Role of the Functional Category structure $(\eta, \mu)$ in reconstruction:}
+  In the classical CoYoneda lemma, reconstructing $\tau_Y : \Hom_{\mathcal{C}}(Z, Y) \to F(Y)$ from
+  $x \in F(Z)$ sends $z2y \mapsto F(z2y)(x)$. In our setting, given $f_Z : \FF(T) \to G(\EF(Z))$,
+  postcomposing with $(G \circ \EF)(z2y)$ yields a function
+  $\alpha_{f_Z, Y} : \Hom_{\mathcal{C}}(Z, Y) \to \Hom_{\mathcal{C}}(\FF(T), G(\EF(Y)))$ in $\Set$.
+  Applying $\FF$ produces a morphism
+  \[
+    \FF(\alpha_{f_Z, Y}) \;:\; \CYEF(Z)(Y) \longrightarrow G\bigl(G(\EF(Y))\bigr)
+    \quad\text{in }\mathcal{C},
+  \]
+  which lands in $G(G(\EF(Y)))$ with \emph{two} layers of $G$. The multiplication-like transformation
+  $\mu_{\EF(Y)} : G(G(\EF(Y))) \to G(\EF(Y))$ flattens these two layers into one, while the parametric
+  unit law $\eta_{\FF(Z)} = \FF(g_Z)$ and the left unit law $\eta_{G(X)} \star \mu_X = \id_{G(X)}$ are
+  the exact coherence axioms needed to guarantee that flattening after lifting is a two-sided inverse to
+  precomposition with $\iotaZ$.
+
+  \vspace{3pt}
+  \item \textbf{Comparison with the adjunction perspective:}
+  When $\FF : \Set \to \mathcal{C}$ is a left adjoint to the global-elements functor
+  $\CYF(\FF(T)) = \Hom_{\mathcal{C}}(\FF(T), -) : \mathcal{C} \to \Set$, natural transformations
+  $\FF \circ \CYF(Z) \Rightarrow G \circ \EF$ transpose across the adjunction to natural transformations
+  $\CYF(Z) \Rightarrow \CYF(\FF(T)) \circ G \circ \EF$ in $\Set$, where the classical CoYoneda lemma
+  applies. Crucially, however, a Functional Category $(\mathcal{C}, \FF)$ \emph{does not assume an
+  adjunction} $\FF \dashv \CYF(\FF(T))$ (nor even that $G$ is a full monad, since neither the right unit
+  law nor associativity of $\mu$ is required). Instead, Theorem~\ref{thm:coendoyoneda} isolates the
+  minimal pointfree equational core---Equations~\eqref{eq:eta-eq} and~\eqref{eq:id-left}---under which
+  the CoEndoYoneda bijection holds directly inside $\mathcal{C}$.
+\end{enumerate}
+
+\section{Purity, Idempotent Monads, and Kleisli Categories}\label{sec:purity}
+
+We now turn to the connection between Basic Functional Categories and computational purity for monads
+on $\Set_\ell$.
+
+\subsection{Monad Formulations and Characterizations of Purity}
+
+In functional programming, a monad $(M, \mathrm{mPure}, \mathrm{mApply})$ on $\Set_\ell$ is given by an
+object mapping $M : \mathrm{ob}(\Set_\ell) \to \mathrm{ob}(\Set_\ell)$, a unit family
+$\mathrm{mPure}_Z : Z \to M(Z)$, and a Kleisli extension (bind) operation
+$\mathrm{mApply} : (Z \to M(Y)) \to M(Z) \to M(Y)$ satisfying the three monad laws:
+\begin{align}
+  \mathrm{mApply}\;f\;(\mathrm{mPure}_Z\;z) &= f(z)
+    &&\text{(left unit law)}, \label{eq:monad-left-unit} \\
+  \mathrm{mApply}\;\mathrm{mPure}_Z\;mz &= mz
+    &&\text{(right unit law)}, \label{eq:monad-right-unit} \\
+  \mathrm{mApply}\;h\;(\mathrm{mApply}\;f\;mz) &= \mathrm{mApply}\;\bigl(z \mapsto \mathrm{mApply}\;h\;(f(z))\bigr)\;mz
+    &&\text{(associativity law)}. \label{eq:monad-assoc}
+\end{align}
+From these, one defines the functorial map operation $\mathrm{mMap}$ (for $f : Z \to Y$) and monadic
+multiplication $\mathrm{mJoin}$:
+\begin{equation}\label{eq:mmap-mjoin}
+  \mathrm{mMap}\;f\;mz \;\coloneqq\; \mathrm{mApply}\;(\mathrm{mPure}_Y \circ f)\;mz,
+  \qquad
+  \mathrm{mJoin}\;mmz \;\coloneqq\; \mathrm{mApply}\;\id_{M(Z)}\;mmz,
+\end{equation}
+which satisfy all standard categorical monad and naturality laws, with
+$\mathrm{mApply}\;f\;mz = \mathrm{mJoin}(\mathrm{mMap}\;f\;mz)$.
+
+\begin{definition}\label{def:idempotent}
+Let $(M, \mathrm{mPure}, \mathrm{mApply})$ be a monad on $\Set_\ell$.
+\begin{enumerate}[label=(\roman*),nosep]
+  \item $M$ is \emph{idempotent} ($\mathrm{Idempotent}(M)$, cfr.\ $M\eta = \eta M$ in~\cite{Borceux1994,nLabIdempotentMonad})
+  if for every $Z \in \mathrm{ob}(\Set_\ell)$ and $mz \in M(Z)$,
+  \begin{equation}\label{eq:idempotent}
+    \mathrm{mMap}\;\mathrm{mPure}_Z\;mz \;=\; \mathrm{mPure}_{M(Z)}\;mz.
+  \end{equation}
+  Intuitively, performing an effect twice is the same as performing it once.
+  \item $M$ \emph{enforces purity} ($\mathrm{IsPure}(M)$) if for every $Z \in \mathrm{ob}(\Set_\ell)$ and
+  $mz \in M(Z)$,
+  \begin{equation}\label{eq:ispure}
+    \mathrm{mApply}\;(\mathrm{mPure}_{M(Z)} \circ \mathrm{mPure}_Z)\;mz \;=\; \mathrm{mPure}_{M(Z)}\;mz.
+  \end{equation}
+\end{enumerate}
+\end{definition}
+
+\begin{lemma}\label{lem:idem-ispure}
+For any monad $M$ on $\Set_\ell$, $\mathrm{Idempotent}(M) \iff \mathrm{IsPure}(M)$.
+\end{lemma}
+
+\begin{proof}
+Immediate because $\mathrm{mMap}\;\mathrm{mPure}_Z\;mz =
+\mathrm{mApply}\;(\mathrm{mPure}_{M(Z)} \circ \mathrm{mPure}_Z)\;mz$ by definition~\eqref{eq:mmap-mjoin}
+of $\mathrm{mMap}$.
+\end{proof}
+
+\subsection{Equivalence Between Kleisli Basic Functional Categories and Monad Idempotency}
+
+Given a monad $M$ on $\Set_\ell$, its \emph{Kleisli category} $\K(M)$ has:
+\begin{itemize}[nosep]
+  \item \textbf{Objects:} $\mathrm{ob}(\K(M)) \coloneqq \mathrm{ob}(\Set_\ell)$;
+\vspace{4 pt}  
+  \item \textbf{Morphisms:} $\Hom_{\K(M)}(Z, Y) \coloneqq (Z \to M(Y))$;
+\vspace{4 pt}  
+  \item \textbf{Identities:} $\id_Z^{\K(M)} \coloneqq \mathrm{mPure}_Z : Z \to M(Z)$;
+\vspace{4 pt}  
+  \item \textbf{Kleisli composition} (denoted $\starK$ to distinguish it from ordinary function
+  composition in $\Set_\ell$): for $f \in \Hom_{\K(M)}(Z, Y)$ and $h \in \Hom_{\K(M)}(Y, X)$,
+  \begin{equation}\label{eq:kleisli-comp}
+    (f \starK h)(z) \;\coloneqq\; \mathrm{mApply}\;h\;\bigl(f(z)\bigr) \;\in\; M(X);
+  \end{equation}
+\vspace{4 pt}  
+  \item \textbf{Canonical functional functor} $\KFF : \Set_\ell \to \K(M)$ (identity on objects):
+  \begin{equation}\label{eq:kff}
+    \KFF(Z) \;\coloneqq\; Z,
+    \qquad
+    \KFF(f : Z \to Y) \;\coloneqq\; \bigl(z \mapsto \mathrm{mPure}_Y(f(z))\bigr)
+    \;\in\; \Hom_{\K(M)}(Z, Y).
+  \end{equation}
+\end{itemize}
+In $(\K(M), \KFF)$, let us explicitly unpack the global-like endofunctor
+$G = \CYEF(\KFF(T)) = \KFF \circ \CYF(T) : \K(M) \to \K(M)$ and the global-element generator $g_Z$:
+\begin{itemize}[nosep]
+  \item For any object $Z \in \mathrm{ob}(\K(M))$, since $\KFF$ is the identity on objects,
+  \[
+    G(Z) \;=\; \KFF\bigl(\Hom_{\K(M)}(T, Z)\bigr) \;=\; \Hom_{\K(M)}(T, Z) \;=\; \bigl(T \to M(Z)\bigr).
+  \]
+\vspace{4 pt}  
+  \item For any Kleisli morphism $f : Y \to M(X)$ in $\Hom_{\K(M)}(Y, X)$, the function
+  $\CYF(T)(f) : (T \to M(Y)) \to (T \to M(X))$ maps $g_{MY} : T \to M(Y)$ to the Kleisli composite
+  $g_{MY} \starK f = \bigl(t \mapsto \mathrm{mApply}\;f\;(g_{MY}(t))\bigr)$. Applying $\KFF$ according to
+  \eqref{eq:kff} yields
+  \begin{equation}\label{eq:kleisli-G-map}
+    G(f)(g_{MY}) \;=\; \mathrm{mPure}_{G(X)}\bigl(t \mapsto \mathrm{mApply}\;f\;(g_{MY}(t))\bigr)
+    \;\in\; M\bigl(T \to M(X)\bigr).
+  \end{equation}
+\vspace{4 pt}  
+  \item For any set $Z$ and element $z \in Z$, the global-element generator
+  $g_Z(z) = \KFF(\const_z) \in \Hom_{\K(M)}(T, Z)$ is the constant function
+  $g_Z(z) = \bigl(\_ \mapsto \mathrm{mPure}_Z(z)\bigr) : T \to M(Z)$. Consequently, lifting
+  $g_Z : Z \to G(Z)$ via $\KFF$ yields
+  \begin{equation}\label{eq:kleisli-kff-g}
+    \KFF(g_Z)(z) \;=\; \mathrm{mPure}_{G(Z)}\bigl(g_Z(z)\bigr)
+    \;=\; \mathrm{mPure}_{G(Z)}\bigl(\_ \mapsto \mathrm{mPure}_Z(z)\bigr)
+    \;\in\; M\bigl(T \to M(Z)\bigr),
+  \end{equation}
+  and at $Z = T$ with $z = \ttstar$, the terminal law~\eqref{eq:eta-eq-T} states that
+  \begin{equation}\label{eq:kleisli-eta-T}
+    \eta_T(\ttstar) \;=\; g_{G(T)}\bigl(g_T(\ttstar)\bigr)(\ttstar)
+    \;=\; \mathrm{mPure}_{G(T)}\bigl(\_ \mapsto \mathrm{mPure}_T(\ttstar)\bigr).
+  \end{equation}
+\end{itemize}
+
+\begin{theorem}\label{thm:kleisli-purity}
+Let $(M, \mathrm{mPure}, \mathrm{mApply})$ be a monad on $\Set_\ell$. Then $(\K(M), \KFF)$ is a
+\emph{Basic Functional Category} if and only if $M$ is an \emph{Idempotent} (pure) monad:
+\[
+  \mathrm{BasicFunctionalCategory}\bigl(\K(M),\, \KFF\bigr)
+  \;\Longleftrightarrow\;
+  \mathrm{Idempotent}(M).
+\]
+More specifically, there is a striking implication associated with the two directions:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item \textbf{($\Longrightarrow$):} Only naturality of $\eta$ and the terminal specialization
+  \eqref{eq:eta-eq-T} ($\eta_T = g_{G(T)}(g_T(\ttstar))$) are used to deduce that $M$ is globally
+  idempotent on all sets $Z$.
+\vspace{4 pt}  
+  \item \textbf{($\Longleftarrow$):} Assuming $M$ is idempotent, the candidate unit
+  $\eta_Y(y) \coloneqq \mathrm{mPure}_{G(Y)}(\_ \mapsto \mathrm{mPure}_Y(y))$ is natural and satisfies
+  the full parametric law~\eqref{eq:eta-eq} ($\eta_Z = \KFF(g_Z)$) definitionally by reflexivity.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+We provide the complete, self-contained equational proof of both directions, matching the mechanized
+derivations in~\cite{CubicalAgdaRepo,PalomarLeanRepo}.
+
+\textbf{Direction ($\Longrightarrow$): $\mathrm{BasicFunctionalCategory}(\K(M), \KFF) \implies \mathrm{Idempotent}(M)$.}
+Suppose $(\K(M), \KFF)$ is a Basic Functional Category with unit natural transformation
+$\eta : \Id_{\K(M)} \Rightarrow G$, where for each set $Z$, $\eta_Z : Z \to M(T \to M(Z))$ is a
+Kleisli morphism in $\Hom_{\K(M)}(Z, G(Z))$.
+
+\emph{Step 1: Proof of the Evaluation Lemma.}
+We first prove that for every set $Z \in \mathrm{ob}(\Set_\ell)$ and every monadic computation
+$mz \in M(Z)$,
+\begin{equation}\label{eq:eval-lemma}
+  \mathrm{mApply}\;\eta_Z\;mz \;=\; \mathrm{mPure}_{G(Z)}(\_ \mapsto mz)
+  \;\in\; M\bigl(T \to M(Z)\bigr).
+\end{equation}
+Define the constant Kleisli morphism $t\!\to\!mz \in \Hom_{\K(M)}(T, Z)$ by
+\[
+  (t\!\to\!mz)(t) \;\coloneqq\; mz \qquad\text{for all } t \in T.
+\]
+By naturality of $\eta : \Id_{\K(M)} \Rightarrow G$ applied to the Kleisli morphism
+$t\!\to\!mz : T \to Z$ in $\K(M)$, we have the equality of Kleisli morphisms in
+$\Hom_{\K(M)}(T, G(Z))$:
+\begin{equation}\label{eq:eta-nat-kleisli}
+  (t\!\to\!mz) \starK \eta_Z \;=\; \eta_T \starK G(t\!\to\!mz).
+\end{equation}
+We evaluate both sides of \eqref{eq:eta-nat-kleisli} at the unique element $\ttstar \in T$.
+By definition~\eqref{eq:kleisli-comp} of Kleisli composition, the left-hand side of
+\eqref{eq:eta-nat-kleisli} evaluated at $\ttstar$ is:
+\begin{equation}\label{eq:eval-lhs}
+  \bigl((t\!\to\!mz) \starK \eta_Z\bigr)(\ttstar)
+  \;=\; \mathrm{mApply}\;\eta_Z\;\bigl((t\!\to\!mz)(\ttstar)\bigr)
+  \;=\; \mathrm{mApply}\;\eta_Z\;mz.
+\end{equation}
+On the right-hand side of \eqref{eq:eta-nat-kleisli}, evaluating at $\ttstar$ and applying the
+Kleisli composition formula~\eqref{eq:kleisli-comp}, the terminal unit law~\eqref{eq:kleisli-eta-T},
+the left unit monad law~\eqref{eq:monad-left-unit}, the action of $G$ in~\eqref{eq:kleisli-G-map}, and
+a second application of the left unit monad law~\eqref{eq:monad-left-unit} yields:
+\begin{align}
+  &\bigl(\eta_T \starK G(t\!\to\!mz)\bigr)(\ttstar) \nonumber \\
+  &\quad= \mathrm{mApply}\;\bigl(G(t\!\to\!mz)\bigr)\;\bigl(\eta_T(\ttstar)\bigr)
+    &&\text{(by \eqref{eq:kleisli-comp})} \nonumber \\
+  &\quad= \mathrm{mApply}\;\bigl(G(t\!\to\!mz)\bigr)\;\bigl(\mathrm{mPure}_{G(T)}(\_ \mapsto \mathrm{mPure}_T(\ttstar))\bigr)
+    &&\text{(by \eqref{eq:kleisli-eta-T})} \nonumber \\
+  &\quad= G(t\!\to\!mz)\bigl(\_ \mapsto \mathrm{mPure}_T(\ttstar)\bigr)
+    &&\text{(by \eqref{eq:monad-left-unit})} \nonumber \\
+  &\quad= \mathrm{mPure}_{G(Z)}\bigl(t \mapsto \mathrm{mApply}\;(t\!\to\!mz)\;((\_ \mapsto \mathrm{mPure}_T(\ttstar))(t))\bigr)
+    &&\text{(by \eqref{eq:kleisli-G-map})} \nonumber \\
+  &\quad= \mathrm{mPure}_{G(Z)}\bigl(t \mapsto \mathrm{mApply}\;(t\!\to\!mz)\;(\mathrm{mPure}_T(\ttstar))\bigr)
+    &&\text{($\beta$-red.)} \nonumber \\
+  &\quad= \mathrm{mPure}_{G(Z)}\bigl(t \mapsto (t\!\to\!mz)(\ttstar)\bigr)
+    &&\text{(by \eqref{eq:monad-left-unit})} \nonumber \\
+  &\quad= \mathrm{mPure}_{G(Z)}(\_ \mapsto mz)
+    &&\text{(def.\ $t\!\to\!mz$)}. \label{eq:eval-rhs}
+\end{align}
+Combining \eqref{eq:eta-nat-kleisli}, \eqref{eq:eval-lhs}, and \eqref{eq:eval-rhs} establishes the
+Evaluation Lemma~\eqref{eq:eval-lemma}.
+
+\emph{Step 2: Point Evaluation Homomorphism and Pointwise Idempotency Lemma.}
+For each set $Z$, define the evaluation map $\mathrm{mgz\!\to\!mmz} : M(G(Z)) \to M(M(Z))$ by
+\begin{equation}\label{eq:mgz-to-mmz}
+  \mathrm{mgz\!\to\!mmz}(m_{t\to mz})
+  \;\coloneqq\; \mathrm{mApply}\;\bigl(t2mz \mapsto \mathrm{mPure}_{M(Z)}(t2mz(\ttstar))\bigr)\;m_{t\to mz}.
+\end{equation}
+Note that for any function $h : T \to M(Z)$, the left unit monad law~\eqref{eq:monad-left-unit} gives
+\begin{align}
+  \mathrm{mgz\!\to\!mmz}\bigl(\mathrm{mPure}_{G(Z)}(h)\bigr)
+  &= \mathrm{mApply}\;\bigl(t2mz \mapsto \mathrm{mPure}_{M(Z)}(t2mz(\ttstar))\bigr)\;\bigl(\mathrm{mPure}_{G(Z)}(h)\bigr) \nonumber \\
+  &= \mathrm{mPure}_{M(Z)}\bigl(h(\ttstar)\bigr). \label{eq:mgz-on-pure}
+\end{align}
+Now, for any element $z \in Z$, applying the left unit monad law~\eqref{eq:monad-left-unit} to write
+$\eta_Z(z) = \mathrm{mApply}\;\eta_Z\;(\mathrm{mPure}_Z(z))$, then applying the Evaluation
+Lemma~\eqref{eq:eval-lemma} to $mz = \mathrm{mPure}_Z(z)$, and finally applying~\eqref{eq:mgz-on-pure}
+to $h = (\_ \mapsto \mathrm{mPure}_Z(z))$ gives:
+\begin{align}
+  \mathrm{mgz\!\to\!mmz}\bigl(\eta_Z(z)\bigr)
+  &= \mathrm{mgz\!\to\!mmz}\Bigl(\mathrm{mApply}\;\eta_Z\;\bigl(\mathrm{mPure}_Z(z)\bigr)\Bigr)
+    &&\text{(by \eqref{eq:monad-left-unit})} \nonumber \\
+  &= \mathrm{mgz\!\to\!mmz}\Bigl(\mathrm{mPure}_{G(Z)}\bigl(\_ \mapsto \mathrm{mPure}_Z(z)\bigr)\Bigr)
+    &&\text{(by \eqref{eq:eval-lemma})} \nonumber \\
+  &= \mathrm{mPure}_{M(Z)}\bigl(\mathrm{mPure}_Z(z)\bigr)
+    &&\text{(by \eqref{eq:mgz-on-pure})}. \label{eq:idempotent-lemma}
+\end{align}
+
+\emph{Step 3: Global Idempotency of $M$.}
+For any set $Z$ and any computation $mz \in M(Z)$, notice first that for any $m_{t\to mz} =
+\mathrm{mApply}\;\eta_Z\;mz$, the monad associativity law~\eqref{eq:monad-assoc} and definition
+\eqref{eq:mgz-to-mmz} yield
+\begin{align}
+  &\mathrm{mgz\!\to\!mmz}\bigl(\mathrm{mApply}\;\eta_Z\;mz\bigr) \nonumber \\
+  &\quad= \mathrm{mApply}\;\bigl(t2mz \mapsto \mathrm{mPure}_{M(Z)}(t2mz(\ttstar))\bigr)\;\bigl(\mathrm{mApply}\;\eta_Z\;mz\bigr) \nonumber \\
+  &\quad= \mathrm{mApply}\;\bigl(z \mapsto \mathrm{mApply}\;(t2mz \mapsto \mathrm{mPure}_{M(Z)}(t2mz(\ttstar)))\;(\eta_Z(z))\bigr)\;mz \nonumber \\
+  &\quad= \mathrm{mApply}\;\bigl(z \mapsto \mathrm{mgz\!\to\!mmz}(\eta_Z(z))\bigr)\;mz. \label{eq:mgz-assoc}
+\end{align}
+Therefore, we obtain the complete equational chain:
+\begin{align*}
+  \mathrm{mMap}\;\mathrm{mPure}_Z\;mz
+  &= \mathrm{mApply}\;\bigl(z \mapsto \mathrm{mPure}_{M(Z)}(\mathrm{mPure}_Z(z))\bigr)\;mz
+    &&\text{(by \eqref{eq:mmap-mjoin})} \\
+  &= \mathrm{mApply}\;\bigl(z \mapsto \mathrm{mgz\!\to\!mmz}(\eta_Z(z))\bigr)\;mz
+    &&\text{(by \eqref{eq:idempotent-lemma} and ext.)} \\
+  &= \mathrm{mgz\!\to\!mmz}\bigl(\mathrm{mApply}\;\eta_Z\;mz\bigr)
+    &&\text{(by \eqref{eq:mgz-assoc})} \\
+  &= \mathrm{mgz\!\to\!mmz}\bigl(\mathrm{mPure}_{G(Z)}(\_ \mapsto mz)\bigr)
+    &&\text{(by \eqref{eq:eval-lemma})} \\
+  &= \mathrm{mPure}_{M(Z)}(mz)
+    &&\text{(by \eqref{eq:mgz-on-pure}, $h = (\_ \mapsto mz)$)}.
+\end{align*}
+Thus $\mathrm{mMap}\;\mathrm{mPure}_Z\;mz = \mathrm{mPure}_{M(Z)}(mz)$ for all $Z$ and $mz \in M(Z)$,
+proving $\mathrm{Idempotent}(M)$.
+
+\textbf{Direction ($\Longleftarrow$): $\mathrm{Idempotent}(M) \implies \mathrm{BasicFunctionalCategory}(\K(M), \KFF)$.}
+Conversely, assume $\mathrm{Idempotent}(M)$ holds. For every set $Z \in \mathrm{ob}(\Set_\ell)$ and
+$mz \in M(Z)$, define $mz\!\to\!mgmz \coloneqq \bigl(m \mapsto \mathrm{mPure}_{G(Z)}(\_ \mapsto m)\bigr)
+: M(Z) \to M(G(Z))$. By the left unit law~\eqref{eq:monad-left-unit}, for each $z \in Z$ we have
+$\mathrm{mPure}_{G(Z)}(\_ \mapsto \mathrm{mPure}_Z(z)) =
+\mathrm{mApply}\;mz\!\to\!mgmz\;\bigl(\mathrm{mPure}_{M(Z)}(\mathrm{mPure}_Z(z))\bigr)$. Applying the
+associativity law~\eqref{eq:monad-assoc}, definition~\eqref{eq:mmap-mjoin} of $\mathrm{mMap}$, the
+idempotency hypothesis~\eqref{eq:idempotent}, and the left unit law~\eqref{eq:monad-left-unit} gives:
+\begin{align}
+  &\mathrm{mApply}\;\bigl(z \mapsto \mathrm{mPure}_{G(Z)}(\_ \mapsto \mathrm{mPure}_Z(z))\bigr)\;mz \nonumber \\
+  &\quad= \mathrm{mApply}\;\bigl(z \mapsto \mathrm{mApply}\;mz\!\to\!mgmz\;\bigl(\mathrm{mPure}_{M(Z)}(\mathrm{mPure}_Z(z))\bigr)\bigr)\;mz \nonumber \\
+  &\quad= \mathrm{mApply}\;mz\!\to\!mgmz\;\bigl(\mathrm{mApply}\;(z \mapsto \mathrm{mPure}_{M(Z)}(\mathrm{mPure}_Z(z)))\;mz\bigr) \nonumber \\
+  &\quad= \mathrm{mApply}\;mz\!\to\!mgmz\;\bigl(\mathrm{mMap}\;\mathrm{mPure}_Z\;mz\bigr) \nonumber \\
+  &\quad= \mathrm{mApply}\;mz\!\to\!mgmz\;\bigl(\mathrm{mPure}_{M(Z)}(mz)\bigr)
+  \;=\; \mathrm{mPure}_{G(Z)}(\_ \mapsto mz). \label{eq:mapply-lemma}
+\end{align}
+Now define the candidate unit $\eta_Y : Y \to M(G(Y))$ for each $Y \in \mathrm{ob}(\K(M))$ by
+\[
+  \eta_Y(y) \;\coloneqq\; \mathrm{mPure}_{G(Y)}\bigl(\_ \mapsto \mathrm{mPure}_Y(y)\bigr).
+\]
+For any Kleisli morphism $y\!\to\!mx : Y \to M(X)$ and any $y \in Y$, applying~\eqref{eq:kleisli-comp},
+\eqref{eq:mapply-lemma} at $mz = y\!\to\!mx\;(y)$, the left unit law~\eqref{eq:monad-left-unit} twice,
+and~\eqref{eq:kleisli-G-map} yields naturality:
+\begin{align*}
+  &\bigl((y\!\to\!mx) \starK \eta_X\bigr)(y) \\
+  &\quad= \mathrm{mApply}\;\bigl(x \mapsto \mathrm{mPure}_{G(X)}(\_ \mapsto \mathrm{mPure}_X(x))\bigr)\;\bigl(y\!\to\!mx\;(y)\bigr) \\
+  &\quad= \mathrm{mPure}_{G(X)}\bigl(\_ \mapsto y\!\to\!mx\;(y)\bigr)
+   \;=\; \mathrm{mPure}_{G(X)}\bigl(\_ \mapsto \mathrm{mApply}\;y\!\to\!mx\;(\mathrm{mPure}_Y(y))\bigr) \\
+  &\quad= \mathrm{mApply}\;\bigl(gmy \mapsto \mathrm{mPure}_{G(X)}(t \mapsto \mathrm{mApply}\;y\!\to\!mx\;(gmy(t)))\bigr)\;\bigl(\mathrm{mPure}_{G(Y)}(\_ \mapsto \mathrm{mPure}_Y(y))\bigr) \\
+  &\quad= \bigl(\eta_Y \starK G(y\!\to\!mx)\bigr)(y).
+\end{align*}
+Finally, by~\eqref{eq:kleisli-kff-g}, $\eta_Z(z) = \mathrm{mPure}_{G(Z)}(\_ \mapsto \mathrm{mPure}_Z(z))
+= \KFF(g_Z)(z)$ holds definitionally by reflexivity for every set $Z$, establishing~\eqref{eq:eta-eq}.
+\end{proof}
+
+\subsection{The Terminal Subsingleton Theorem}
+
+A classical property of idempotent monads (building on Lawvere and Manes, with the equational proof
+presented in Borceux~\cite{Borceux1994}) is that any monadic computation over the terminal type $T$ must
+be equal to $\mathrm{mPure}_T(\ttstar)$:
+
+\begin{theorem}\label{thm:terminal-subsingleton}
+Let $M$ be a monad on $\Set_\ell$ satisfying $\mathrm{IsPure}(M)$. Then $M$ satisfies the terminal
+subsingleton property $\mathrm{MonadicTerminalTypeSubSingleton}(M)$: for every terminal monadic
+computation $mt \in M(T)$,
+\begin{equation}\label{eq:terminal-subsingleton}
+  mt \;=\; \mathrm{mPure}_T(\ttstar).
+\end{equation}
+In particular, $M(T)$ is a subsingleton ($\forall m_1, m_2 \in M(T),\; m_1 = m_2$).
+\end{theorem}
+
+\begin{proof}
+Define $\mathrm{mmt\!\to\!mt} \coloneqq \mathrm{mApply}\;(\_ \mapsto \mathrm{mPure}_T(\ttstar)) : M(M(T)) \to M(T)$.
+Since $T = \{\ttstar\}$ has a unique inhabitant, $\mathrm{mPure}_T = (\_ \mapsto \mathrm{mPure}_T(\ttstar))$
+by function extensionality, and for every $t \in T$ the left unit law~\eqref{eq:monad-left-unit} gives
+$\mathrm{mmt\!\to\!mt}\bigl((\mathrm{mPure}_{M(T)} \circ \mathrm{mPure}_T)(t)\bigr) = \mathrm{mPure}_T(\ttstar)$.
+Applying the right unit law~\eqref{eq:monad-right-unit}, associativity~\eqref{eq:monad-assoc}, the
+purity law~\eqref{eq:ispure}, and the left unit law~\eqref{eq:monad-left-unit} yields:
+\begin{align*}
+  mt
+  &= \mathrm{mApply}\;\mathrm{mPure}_T\;mt
+    &&\text{(by \eqref{eq:monad-right-unit})} \\
+  &= \mathrm{mApply}\;\bigl(\_ \mapsto \mathrm{mPure}_T(\ttstar)\bigr)\;mt
+    &&\text{($T = \{\ttstar\}$)} \\
+  &= \mathrm{mApply}\;\bigl(t \mapsto \mathrm{mmt\!\to\!mt}((\mathrm{mPure}_{M(T)} \circ \mathrm{mPure}_T)(t))\bigr)\;mt
+    &&\text{(by \eqref{eq:monad-left-unit})} \\
+  &= \mathrm{mmt\!\to\!mt}\bigl(\mathrm{mApply}\;(\mathrm{mPure}_{M(T)} \circ \mathrm{mPure}_T)\;mt\bigr)
+    &&\text{(by \eqref{eq:monad-assoc})} \\
+  &= \mathrm{mmt\!\to\!mt}\bigl(\mathrm{mPure}_{M(T)}(mt)\bigr)
+    &&\text{(by \eqref{eq:ispure})} \\
+  &= \mathrm{mPure}_T(\ttstar)
+    &&\text{(by \eqref{eq:monad-left-unit})}.
+  \qedhere
+\end{align*}
+\end{proof}
+
+In my opinion, the proof above is an example of a \emph{theorem proving pearl} of
+exceptional beauty. Using other statements it proves that any $mt$ necessarily equals
+$\mathrm{mPure}_T(\ttstar)$. 
+
+\section{Classification of Concrete Computational Effects}\label{sec:examples}
+
+We now evaluate $\mathrm{IsPure}(M)$ across seven standard computational effects, giving full
+equational derivations for each case and summarizing the classification in Table~\ref{tab:effects}.
+
+\begin{theorem}\label{thm:examples}
+Let $\Set_\ell$ be a universe of sets, and for a set $A \in \mathrm{ob}(\Set_\ell)$ write
+$\mathrm{Subsingleton}(A) \coloneqq (\forall a_1, a_2 \in A,\; a_1 = a_2)$.
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item \textbf{Partiality ($\mathrm{Option}$, with $\mathrm{mPure}(z) = \mathrm{some}(z)$ and
+  $\mathrm{mApply}\;f\;\mathrm{none} = \mathrm{none}$, $\mathrm{mApply}\;f\;(\mathrm{some}(z)) = f(z)$):}
+  \[
+    \neg\,\mathrm{IsPure}(\mathrm{Option}).
+  \]
+  \emph{Proof:} Choose the witness computation $mz = \mathrm{none} \in \mathrm{Option}(T)$. Then the
+  left-hand side and right-hand side of the purity equation~\eqref{eq:ispure} evaluate to:
+  \[
+    \mathrm{mApply}\;(\mathrm{mPure} \circ \mathrm{mPure})\;\mathrm{none} \;=\; \mathrm{none},
+    \qquad
+    \mathrm{mPure}(\mathrm{none}) \;=\; \mathrm{some}(\mathrm{none}).
+  \]
+  Thus~\eqref{eq:ispure} forces $\mathrm{none} = \mathrm{some}(\mathrm{none})$ in
+  $\mathrm{Option}(\mathrm{Option}(T))$, which is impossible since $\mathrm{none}$ and $\mathrm{some}$
+  are disjoint constructors.
+  \vspace{4pt}
+  \item \textbf{Nondeterminism ($\mathrm{List}$, with $\mathrm{mPure}(z) = [z]$ and
+  $\mathrm{mApply}\;f\;zs = \mathrm{concatMap}\;f\;zs$):}
+  \[
+    \neg\,\mathrm{IsPure}(\mathrm{List}).
+  \]
+  \emph{Proof:} Choose the two-element list $mz = [\ttstar, \ttstar] \in \mathrm{List}(T)$. Since
+  $(\mathrm{mPure} \circ \mathrm{mPure})(z) = [[z]]$, the left-hand side and right-hand side of
+  \eqref{eq:ispure} evaluate to:
+  \[
+    \mathrm{mApply}\;(\mathrm{mPure} \circ \mathrm{mPure})\;[\ttstar, \ttstar]
+    \;=\; \bigl[[\ttstar],\, [\ttstar]\bigr],
+    \qquad
+    \mathrm{mPure}\bigl([\ttstar, \ttstar]\bigr)
+    \;=\; \bigl[[\ttstar, \ttstar]\bigr].
+  \]
+  Equating the two lists in $\mathrm{List}(\mathrm{List}(T))$ and taking the tail (or comparing lengths
+  $2 \neq 1$) yields $[[\ttstar]] = []$, a contradiction.
+  \vspace{4pt}
+  \item \textbf{Environment reading ($\mathrm{Read}\;R$, where $\mathrm{Read}\;R(Z) = (R \to Z)$,
+  $\mathrm{mPure}(z) = (\_ \mapsto z)$, and $(\mathrm{mApply}\;f\;m)(r) = f(m(r))(r)$):}
+  \[
+    \mathrm{IsPure}(\mathrm{Read}\;R) \;\implies\; \mathrm{Subsingleton}(R).
+  \]
+  \emph{Proof:} Choose the identity reader $mz = \id_R = (r \mapsto r) \in \mathrm{Read}\;R(R)$. For
+  any $z \in R$, $(\mathrm{mPure} \circ \mathrm{mPure})(z) = (\_ \mapsto (\_ \mapsto z)) : R \to (R \to R)$.
+  Evaluating both sides of~\eqref{eq:ispure} on $mz = \id_R$ gives:
+  \begin{align*}
+    \mathrm{LHS}
+    &= \mathrm{mApply}\;(\mathrm{mPure} \circ \mathrm{mPure})\;\id_R \\
+    &= \bigl(r_1 \mapsto ((\mathrm{mPure} \circ \mathrm{mPure})(\id_R(r_1)))(r_1)\bigr)
+     \;=\; \bigl(r_1 \mapsto (r_2 \mapsto r_1)\bigr), \\
+    \mathrm{RHS}
+    &= \mathrm{mPure}(\id_R)
+     \;=\; \bigl(r_1 \mapsto \id_R\bigr)
+     \;=\; \bigl(r_1 \mapsto (r_2 \mapsto r_2)\bigr).
+  \end{align*}
+  For any $r_1, r_2 \in R$, applying $\mathrm{LHS} = \mathrm{RHS}$ to $r_1$ and then to $r_2$ gives
+  $r_1 = \mathrm{LHS}(r_1)(r_2) = \mathrm{RHS}(r_1)(r_2) = r_2$.
+  \vspace{4pt}
+  \item \textbf{Logging ($\mathrm{Write}\;W$, where $\mathrm{Write}\;W(Z) = Z \times W$ for a monoid
+  $(W, e, \bullet)$, $\mathrm{mPure}(z) = (z, e)$, and $\mathrm{mApply}\;f\;(z, w_0) = (y, w_0 \bullet w_1)$
+  where $(y, w_1) = f(z)$):}
+  \[
+    \mathrm{IsPure}(\mathrm{Write}\;W) \;\implies\; \mathrm{Subsingleton}(W).
+  \]
+  \emph{Proof:} Let $w \in W$ and consider the witness $mz = (e, w) \in \mathrm{Write}\;W(W)$. Since
+  $(\mathrm{mPure} \circ \mathrm{mPure})(z) = ((z, e), e)$, the two sides of~\eqref{eq:ispure} at
+  $mz = (e, w)$ are:
+  \begin{align*}
+    \mathrm{LHS} &= \mathrm{mApply}\;(\mathrm{mPure} \circ \mathrm{mPure})\;(e, w) \;=\; \bigl((e, e),\, w \bullet e\bigr), \\
+    \mathrm{RHS} &= \mathrm{mPure}\bigl((e, w)\bigr) \;=\; \bigl((e, w),\, e\bigr).
+  \end{align*}
+  Taking the first projection $\pi_1$ of $\mathrm{LHS} = \mathrm{RHS}$ gives $(e, e) = (e, w)$, and
+  taking the second projection $\pi_2$ gives $e = w$. Hence for any $w_1, w_2 \in W$, $w_1 = e = w_2$.
+  \vspace{4pt}
+  \item \textbf{Mutable state ($\mathrm{State}\;S$, where $\mathrm{State}\;S(Z) = (S \to Z \times S)$,
+  $\mathrm{mPure}(z) = (s \mapsto (z, s))$, and
+  $(\mathrm{mApply}\;f\;m)(s) = f(z)(s')$ where $(z, s') = m(s)$):}
+  \[
+    \mathrm{IsPure}(\mathrm{State}\;S) \;\implies\; \mathrm{Subsingleton}(S).
+  \]
+  \emph{Proof:} Choose the state-reading computation $mz = \bigl(s \mapsto (s, s)\bigr) \in \mathrm{State}\;S(S)$.
+  For any $z \in S$, we have
+  \[
+    (\mathrm{mPure} \circ \mathrm{mPure})(z)
+    \;=\; \mathrm{mPure}\bigl(s' \mapsto (z, s')\bigr)
+    \;=\; \Bigl(s \mapsto \bigl((s' \mapsto (z, s')),\, s\bigr)\Bigr).
+  \]
+  Therefore, the left-hand side of~\eqref{eq:ispure} applied to $mz = (s \mapsto (s, s))$ is:
+  \begin{align*}
+    \mathrm{LHS}(s_1)
+    &= \bigl(\mathrm{mApply}\;(\mathrm{mPure} \circ \mathrm{mPure})\;mz\bigr)(s_1) \\
+    &= \bigl((\mathrm{mPure} \circ \mathrm{mPure})(s_1)\bigr)(s_1)
+    \;=\; \bigl((s' \mapsto (s_1, s')),\, s_1\bigr),
+  \end{align*}
+  while the right-hand side of~\eqref{eq:ispure} applied to $mz = (s \mapsto (s, s))$ is:
+  \[
+    \mathrm{RHS}(s_1)
+    \;=\; \bigl(\mathrm{mPure}(mz)\bigr)(s_1)
+    \;=\; (mz,\, s_1)
+    \;=\; \bigl((s' \mapsto (s', s')),\, s_1\bigr).
+  \]
+  For any $s_1, s_2 \in S$, evaluating $\mathrm{LHS} = \mathrm{RHS}$ at $s_1$ and taking the first
+  projection $\pi_1$ yields the equality of functions $(s' \mapsto (s_1, s')) = (s' \mapsto (s', s'))$
+  in $S \to S \times S$. Evaluating both functions at $s' = s_2$ gives $(s_1, s_2) = (s_2, s_2)$, and
+  taking the first projection $\pi_1$ yields $s_1 = s_2$.
+  \vspace{4pt}
+  \item \textbf{Continuations ($\mathrm{Cont}\;R$, where $\mathrm{Cont}\;R(Z) = ((Z \to R) \to R)$,
+  $\mathrm{mPure}(z) = (k \mapsto k(z))$, and
+  $(\mathrm{mApply}\;f\;m)(k) = m(z \mapsto f(z)(k))$):}
+  \[
+    \mathrm{IsPure}(\mathrm{Cont}\;R) \;\implies\; \mathrm{Subsingleton}(R).
+  \]
+  \emph{Proof:} Let $r_1, r_2 \in R$, and consider the constant continuation computation
+  $m_1 \coloneqq (\_ \mapsto r_1) \in \mathrm{Cont}\;R(R) = ((R \to R) \to R)$, which ignores its
+  continuation argument $k : R \to R$ and returns $r_1$. In $\mathrm{Cont}\;R(\mathrm{Cont}\;R(R))$,
+  an outer continuation is a function $K : \mathrm{Cont}\;R(R) \to R$. The left-hand side of
+  \eqref{eq:ispure} at $mz = m_1$, applied to any outer continuation $K : \mathrm{Cont}\;R(R) \to R$,
+  evaluates to:
+  \begin{align*}
+    \mathrm{LHS}(K)
+    &= \bigl(\mathrm{mApply}\;(\mathrm{mPure} \circ \mathrm{mPure})\;m_1\bigr)(K) \\
+    &= m_1\bigl(z \mapsto ((\mathrm{mPure} \circ \mathrm{mPure})(z))(K)\bigr) \;=\; r_1,
+  \end{align*}
+  because $m_1 = (\_ \mapsto r_1)$ returns $r_1$ regardless of its argument. Conversely, the right-hand
+  side of~\eqref{eq:ispure} at $mz = m_1$, applied to $K$, evaluates to:
+  \[
+    \mathrm{RHS}(K)
+    \;=\; \bigl(\mathrm{mPure}(m_1)\bigr)(K)
+    \;=\; K(m_1).
+  \]
+  Now choose the constant outer continuation $K_2 \coloneqq (\_ \mapsto r_2) : \mathrm{Cont}\;R(R) \to R$.
+  Evaluating $\mathrm{LHS} = \mathrm{RHS}$ at $K = K_2$ gives
+  \[
+    r_1 \;=\; \mathrm{LHS}(K_2) \;=\; \mathrm{RHS}(K_2) \;=\; K_2(m_1) \;=\; r_2.
+  \]
+  \vspace{4pt}
+  \item \textbf{Input/Output and Exceptions ($\mathrm{ErrorState}\;E\;S$, where
+  $\mathrm{ErrorState}\;E\;S(Z) = (S \to (E \times S) \uplus (Z \times S))$,
+  $\mathrm{mPure}(z) = (s \mapsto \mathrm{inr}(z, s))$, and $\mathrm{mApply}\;f\;m$ propagates
+  $\mathrm{inl}(e, s')$ and applies $f(z)(s')$ on $\mathrm{inr}(z, s')$):}
+  \[
+    \forall e \in E,\; \forall s \in S,\qquad \neg\,\mathrm{IsPure}(\mathrm{ErrorState}\;E\;S).
+  \]
+  \emph{Proof:} Given $e \in E$ and $s \in S$, define the failing computation
+  $m \coloneqq \bigl(s' \mapsto \mathrm{inl}(e, s')\bigr) \in \mathrm{ErrorState}\;E\;S(T)$. Evaluating
+  both sides of~\eqref{eq:ispure} on $m$ and then at initial state $s \in S$ yields:
+  \[
+    \bigl(\mathrm{mApply}\;(\mathrm{mPure} \circ \mathrm{mPure})\;m\bigr)(s) \;=\; \mathrm{inl}(e, s),
+    \qquad
+    \bigl(\mathrm{mPure}(m)\bigr)(s) \;=\; \mathrm{inr}(m, s),
+  \]
+  contradicting the disjointness of $\mathrm{inl}$ and $\mathrm{inr}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{Monad $M$} & \textbf{Carrier $M(Z)$} & \textbf{Terminal $M(T)$} & \textbf{Witness $mz$} & \textbf{LHS vs.\ RHS of~\eqref{eq:ispure}} & \textbf{$\mathrm{IsPure}(M)$} \\
+\midrule
+$\mathrm{Option}$ & $1 + Z$ & $1 + 1$ & $\mathrm{none}$ & $\mathrm{none} \neq \mathrm{some}(\mathrm{none})$ & False \\
+$\mathrm{List}$ & $\mathrm{List}(Z)$ & $\mathrm{List}(1) \cong \mathbb{N}$ & $[\ttstar, \ttstar]$ & $[[\ttstar],[\ttstar]] \neq [[\ttstar,\ttstar]]$ & False \\
+$\mathrm{Read}\;R$ & $R \to Z$ & $R \to 1 \cong 1$ & $\id_R$ & $(r_1, r_2 \mapsto r_1) = (r_1, r_2 \mapsto r_2)$ & $\iff |R| \le 1$ \\
+$\mathrm{Write}\;W$ & $Z \times W$ & $1 \times W \cong W$ & $(e, w)$ & $((e,e), w) = ((e,w), e)$ & $\iff |W| \le 1$ \\
+$\mathrm{State}\;S$ & $S \to Z \times S$ & $S \to 1 \times S \cong S^S$ & $s \mapsto (s, s)$ & $((s' \mapsto (s_1,s')), s_1) = (mz, s_1)$ & $\iff |S| \le 1$ \\
+$\mathrm{Cont}\;R$ & $(Z \to R) \to R$ & $(1 \to R) \to R \cong R^R$ & $\_ \mapsto r_1$ & $(\_ \mapsto r_1) = (K \mapsto K(m_1))$ & $\iff |R| \le 1$ \\
+$\mathrm{ErrorState}\;E\;S$ & $S \to (E + Z) \times S$ & $S \to (E + 1) \times S$ & $s' \mapsto \mathrm{inl}(e, s')$ & $\mathrm{inl}(e, s) \neq \mathrm{inr}(m, s)$ & False ($E, S \neq \emptyset$) \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the seven standard computational effects, their terminal carriers $M(T)$, their
+purity witness computations, and their exact $\mathrm{IsPure}(M)$ classification (where $|A| \le 1$
+denotes $\mathrm{Subsingleton}(A)$).}
+\label{tab:effects}
+\end{table}
+
+\subsection{Strict Separation Between Basic Functional Category Purity and Terminal Subsingleton Triviality}
+
+As Table~\ref{tab:effects} illustrates, the terminal subsingleton condition
+$\mathrm{MonadicTerminalTypeSubSingleton}(M)$ ($M(T) \cong T$, Theorem~\ref{thm:terminal-subsingleton})
+suffices to rule out $\mathrm{Option}$, $\mathrm{List}$, $\mathrm{Write}\;W$ ($|W| > 1$),
+$\mathrm{State}\;S$ ($|S| > 1$), $\mathrm{Cont}\;R$ ($|R| > 1$), and $\mathrm{ErrorState}\;E\;S$
+($E, S \neq \emptyset$). However, $\mathrm{Read}\;R$ satisfies
+\[
+  \mathrm{Read}\;R(T) \;=\; (R \to T) \;\cong\; T
+\]
+for \emph{every} environment set $R$. We now formulate and prove a formal separation theorem showing
+that the Basic Functional Category condition on $(\K(M), \KFF)$ (and in particular the existence of a
+natural transformation $\eta : \Id_{\K(M)} \Rightarrow G$ satisfying the terminal unit
+law~\eqref{eq:eta-eq-T}) is \textbf{strictly stronger} than the terminal subsingleton property
+$\mathrm{MonadicTerminalTypeSubSingleton}(M)$.
+
+\begin{theorem}[Strict separation theorem]\label{thm:strict-separation}
+For monads $M$ on $\Set_\ell$:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item \textbf{Universal Implication:} For every monad $M$ on $\Set_\ell$,
+  \[
+    \mathrm{BasicFunctionalCategory}\bigl(\K(M),\, \KFF\bigr)
+    \;\implies\;
+    \mathrm{MonadicTerminalTypeSubSingleton}(M).
+  \]
+\vspace{4 pt}
+  \item \textbf{Strictness (Failure of the Converse):} For every set $R \in \mathrm{ob}(\Set_\ell)$
+  containing at least two distinct elements $r_1 \neq r_2$ (for instance, $R = \{0, 1\}$), the reader
+  monad $M = \mathrm{Read}\;R$ satisfies:
+  \begin{enumerate}[label=(\alph*),nosep]
+    \item $\mathrm{MonadicTerminalTypeSubSingleton}(\mathrm{Read}\;R)$ \textbf{holds} ($\forall mt \in
+    \mathrm{Read}\;R(T),\; mt = \mathrm{mPure}_T(\ttstar)$);
+\vspace{4 pt}
+    \item $\mathrm{BasicFunctionalCategory}\bigl(\K(\mathrm{Read}\;R),\, \KFF\bigr)$ \textbf{fails}
+    (no natural transformation $\eta : \Id_{\K(\mathrm{Read}\;R)} \Rightarrow G$ satisfies the terminal
+    unit law~\eqref{eq:eta-eq-T}).
+  \end{enumerate}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textbf{Part (i):} Suppose $(\K(M), \KFF)$ is a Basic Functional Category. By
+Theorem~\ref{thm:kleisli-purity}, $M$ satisfies $\mathrm{Idempotent}(M)$, which by
+Lemma~\ref{lem:idem-ispure} is equivalent to $\mathrm{IsPure}(M)$. Applying
+Theorem~\ref{thm:terminal-subsingleton} yields $\mathrm{MonadicTerminalTypeSubSingleton}(M)$.
+
+\textbf{Part (ii)(a):} Let $mt \in \mathrm{Read}\;R(T) = (R \to T)$. For every $r \in R$, since
+$T = \{\ttstar\}$ has a unique inhabitant, $mt(r) = \ttstar = (\_ \mapsto \ttstar)(r) =
+\mathrm{mPure}_T(\ttstar)(r)$. By function extensionality, $mt = \mathrm{mPure}_T(\ttstar)$, so
+$\mathrm{MonadicTerminalTypeSubSingleton}(\mathrm{Read}\;R)$ holds for every set $R$.
+
+\textbf{Part (ii)(b):} Suppose for contradiction that $(\K(\mathrm{Read}\;R), \KFF)$ is a Basic
+Functional Category (or merely that there exists a natural transformation
+$\eta : \Id_{\K(\mathrm{Read}\;R)} \Rightarrow G$ satisfying the terminal unit law~\eqref{eq:eta-eq-T}).
+By Theorem~\ref{thm:kleisli-purity}(i) and Lemma~\ref{lem:idem-ispure}, $\mathrm{IsPure}(\mathrm{Read}\;R)$
+must hold. By Theorem~\ref{thm:examples}(3), $\mathrm{IsPure}(\mathrm{Read}\;R)$ implies
+$\mathrm{Subsingleton}(R)$, forcing $r_1 = r_2$, which contradicts $r_1 \neq r_2$.
+
+To see this failure directly on the explicit separating model $M = \mathrm{Read}\;R$ with two distinct
+environment values $r_1 \neq r_2 \in R$ (such as the two-element boolean environment $R = \{0, 1\}$ with
+$r_1 = 0$ and $r_2 = 1$), note that in $\K(\mathrm{Read}\;R)$, the candidate unit forced by~\eqref{eq:eta-eq}
+is $\eta_Z(z) = \bigl(r_{\mathrm{outer}} \mapsto (\_ \mapsto (r_{\mathrm{inner}} \mapsto z))\bigr)$, and
+at $Z = T$ the terminal law~\eqref{eq:eta-eq-T} forces
+$\eta_T(\ttstar) = \bigl(r_{\mathrm{outer}} \mapsto (\_ \mapsto (r_{\mathrm{inner}} \mapsto \ttstar))\bigr)$.
+Consider the environment-reading Kleisli morphism
+\[
+  f \;\coloneqq\; (\_ \mapsto \id_R) \;=\; \bigl(t \mapsto (r \mapsto r)\bigr)
+  \;\in\; \Hom_{\K(\mathrm{Read}\;R)}(T, R).
+\]
+Evaluating the naturality equation $f \starK \eta_R = \eta_T \starK G(f)$ at $\ttstar \in T$, outer
+environment $r_1 \in R$, dummy terminal argument $\ttstar \in T$, and inner environment $r_2 \in R$ gives:
+\begin{align*}
+  \bigl((f \starK \eta_R)(\ttstar)(r_1)(\ttstar)\bigr)(r_2)
+  &= \bigl(\eta_R(f(\ttstar)(r_1))(r_1)(\ttstar)\bigr)(r_2)
+   \;=\; \bigl(\eta_R(r_1)(r_1)(\ttstar)\bigr)(r_2) \;=\; r_1, \\
+  \bigl((\eta_T \starK G(f))(\ttstar)(r_1)(\ttstar)\bigr)(r_2)
+  &= \bigl(G(f)(\eta_T(\ttstar)(r_1))(r_1)(\ttstar)\bigr)(r_2) \\
+  &= f\bigl(\eta_T(\ttstar)(r_1)(\ttstar)(r_2)\bigr)(r_2)
+   \;=\; f(\ttstar)(r_2) \;=\; r_2.
+\end{align*}
+On the left-hand side, binding $f$ before $\eta_R$ reads the \emph{outer} environment $r_1$ and freezes
+it inside the thunk; on the right-hand side, postcomposing $f$ inside $G(f)$ defers reading the
+environment until the \emph{inner} evaluation at $r_2$. Since $r_1 \neq r_2$, naturality of $\eta$ fails
+for $\mathrm{Read}\;R$ whenever $|R| \ge 2$, even though $\mathrm{Read}\;R(T) = (R \to T) \cong T$ is a
+subsingleton.
+\end{proof}
+
+\subsection{Scope, Implications for Commutative Effects, and Limitations of the Framework}\label{subsec:limitations}
+
+Our results establish a sharp boundary for the pointfree Basic Functional Category and CoEndoYoneda
+framework, which clarifies both its power as a purity specification and its scope for modeling effects:
+
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item \textbf{Exclusion of non-idempotent and commutative effects:}
+  By Theorem~\ref{thm:kleisli-purity}, for a Kleisli category $\K(M)$ equipped with the canonical
+  identity-on-objects embedding $\KFF : \Set_\ell \to \K(M)$, the Basic Functional Category structure
+  (and hence the CoEndoYoneda Isomorphism Theorem~\ref{thm:coendoyoneda}) holds if and only if $M$ is an
+  idempotent monad. Consequently, the CoEndoYoneda isomorphism with respect to $\KFF$ does \emph{not}
+  apply to Kleisli categories of non-idempotent monads such as $\mathrm{Option}$, $\mathrm{List}$,
+  $\mathrm{State}\;S$ ($|S| \ge 2$), $\mathrm{Cont}\;R$ ($|R| \ge 2$), or $\mathrm{ErrorState}\;E\;S$
+  ($E, S \neq \emptyset$). Moreover, unlike premonoidal centrality~\cite{PowerRobinson1997,LevyPowerThielecke2003}---which
+  requires effect commutativity $(f \ltimes h) = (f \rtimes h)$ and therefore includes commutative
+  effects such as $\mathrm{Read}\;R$ and commutative $\mathrm{Write}\;W$ in the center---our condition
+  requires that \emph{every} computation commute with the thunking endofunctor $G(Z) = (T \to M(Z))$ via
+  $\eta$. As shown in Theorem~\ref{thm:strict-separation}, for $\mathrm{Read}\;R$ ($|R| \ge 2$),
+  binding an environment query before $\eta$ freezes the outer environment $r_1$, whereas pushing the
+  query into $G$ reads the inner environment $r_2$; for $\mathrm{Write}\;W$ ($|W| \ge 2$), binding a log
+  emission before $\eta$ emits the log at the outer level, whereas pushing it into $G$ traps the log
+  inside the thunk $T \to (Z \times W)$. Thus, the Basic Functional Category axiom characterizes
+  \emph{strict effectlessness} (referential transparency across thunking) rather than effect
+  commutativity.
+
+  \vspace{3pt}
+  \item \textbf{Which non-trivial monads are idempotent?}
+  Although the seven effect families in Theorem~\ref{thm:examples} collapse to trivial parameter sets
+  when idempotent, idempotent monads in general category theory are far from trivial: on a general
+  category $\mathcal{C}$, idempotent monads classify \emph{reflective subcategories} (and localization /
+  modality operators, such as open/closed modalities, sheafification, or propositional truncation in
+  homotopy type theory)~\cite{Borceux1994,Kelly1980,nLabIdempotentMonad}. On $\Set_\ell$, where every
+  non-empty set splits over $T$, the only reflective subcategories are the full category $\Set_\ell$
+  ($M \cong \Id_{\Set_\ell}$) and the terminal subcategory ($M(Z) \cong T$, or $M(\emptyset) = \emptyset$
+  and $M(Z) \cong T$ for $Z \neq \emptyset$). Thus, on $\Set_\ell$, our characterization accurately
+  certifies that a monadic program category $(\K(M), \KFF)$ behaves purely if and only if $M$ introduces
+  no computational side effects beyond pure values (or trivial termination).
+
+  \vspace{3pt}
+  \item \textbf{Alternative pointfree characterizations for benign or commutative effects:}
+  If one wishes to relax strict purity to admit specific classes of benign effects in a pointfree
+  setting, our hierarchy of theorems suggests three natural directions:
+  \begin{enumerate}[label=(\alph*),nosep]
+    \item \emph{Discardable / read-only effects} (such as $\mathrm{Read}\;R$): characterized by the
+    strictly weaker terminal subsingleton law $M(T) \cong T$ (Theorem~\ref{thm:terminal-subsingleton}),
+    which demands that computations returning no data carry no observable side-effect state, and corresponds
+    categorically to the terminal object $\KFF(T)$ remaining terminal in $\K(M)$ (semicartesian / affine
+    structure);
+    \item \emph{Commutative effects} (such as $\mathrm{Read}\;R$ and commutative $\mathrm{Write}\;W$):
+    characterized pointfreely by central morphisms in premonoidal and Freyd
+    categories~\cite{PowerRobinson1997,LevyPowerThielecke2003};
+    \item \emph{Restricted or relative CoEndoYoneda structures:} restricting the naturality of
+    $\eta : \Id_{\mathcal{C}} \Rightarrow G$ to the subcategory of pure (or thunkable~\cite{Fuhrmann1999})
+    morphisms inside an ambient effectful category $\mathcal{C}$, or varying the functional functor
+    $\FF : \Set_\ell \to \mathcal{C}$ beyond the identity-on-objects Kleisli inclusion $\KFF$.
+  \end{enumerate}
+\end{enumerate}
+
+\section{Formal Verification in Cubical Agda and Lean 4}\label{sec:formalization}
+
+Both formalizations are 100\% machine-checked with zero postulates, zero unproved axioms, and zero
+\texttt{sorry}s. Table~\ref{tab:alignment} provides the exact alignment between the mathematical results
+in this paper, the Cubical Agda development (\texttt{CoEndoYoneda.lagda.md}~\cite{CubicalAgdaRepo}),
+and the Palomar-verified Lean~4 formalization (\texttt{coEndoYoneda-and-purity}~\cite{PalomarLeanRepo}).
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Paper Reference} & \textbf{Cubical Agda (\texttt{CoEndoYoneda.lagda.md})} & \textbf{Lean 4 (\texttt{CoEndoYonedaAndPurity})} & \textbf{Status} \\
+\midrule
+Definition~\ref{def:bfc} & \texttt{BasicFunctionalCategory} & \texttt{BasicFunctionalCategory} & Verified \\
+Lemma~\ref{lem:g-id} & \texttt{lemma}, \texttt{lemma-T} & \texttt{lemma\_g}, \texttt{lemma\_T} & Proved \\
+Proposition~\ref{prop:eta-eq-T} & \texttt{η-eq-T} & \texttt{η\_eq\_T} & Proved \\
+Definition~\ref{def:fc} & \texttt{FunctionalCategory} & \texttt{FunctionalCategory} & Verified \\
+Theorem~\ref{thm:coendoyoneda}(i) & \texttt{fz→τz\_commute} & \texttt{fz\_to\_τz\_commute} & Proved \\
+Theorem~\ref{thm:coendoyoneda}(ii) & \texttt{to\_from\_proof} & \texttt{to\_from\_proof\_hom}, \texttt{to\_from\_proof} & Proved \\
+Theorem~\ref{thm:coendoyoneda}(iii) & \texttt{from\_to\_proof'}, \texttt{from\_to\_proof} & \texttt{from\_to\_proof'}, \texttt{from\_to\_proof} & Proved \\
+Theorem~\ref{thm:coendoyoneda} (Iso) & \texttt{coEndoYonedaIso} & \texttt{coEndoYonedaIso} & Proved \\
+Proposition~\ref{prop:origin-eta} & \texttt{ηFFT-is-η-at-FFT} & \texttt{ηFFT\_is\_η\_at\_FFT} & Proved \\
+Proposition~\ref{prop:set-fc} & \texttt{SetFunctionalCategory} & \texttt{set\_is\_functional\_category} & Proved \\
+Lemma~\ref{lem:idem-ispure} & \texttt{idempotent-equiv-is-pure} & \texttt{idempotent\_iff\_isPure} & Proved \\
+Theorem~\ref{thm:kleisli-purity} & \texttt{idempotent-equiv-kleisli-...} & \texttt{kleisliBasicFunctionalCategory\_iff\_...} & Proved \\
+Theorem~\ref{thm:terminal-subsingleton} & \texttt{is-pure-implies-monadic-...} & \texttt{isPure\_implies\_monadicTerminalType...} & Proved \\
+Theorem~\ref{thm:examples}(1)--(2) & \texttt{maybe-not-pure}, \texttt{list-not-pure} & \texttt{maybe\_not\_pure}, \texttt{list\_not\_pure} & Proved \\
+Theorem~\ref{thm:examples}(3)--(6) & \texttt{read/write/state/cont-purity-implies} & \texttt{read/write/state/cont\_purity\_implies} & Proved \\
+Theorem~\ref{thm:examples}(7) & \texttt{io-not-pure} & \texttt{io\_not\_pure} & Proved \\
+\bottomrule
+\end{tabular}
+\caption{Alignment between the paper, the Cubical Agda formalization, and the Lean~4 Palomar formalization.}
+\label{tab:alignment}
+\end{table}
+
+\begin{thebibliography}{99}
+\raggedright
+
+\bibitem{Borceux1994}
+F. Borceux,
+\emph{Handbook of Categorical Algebra 2: Categories and Structures},
+Encyclopedia of Mathematics and its Applications, vol.~51, Cambridge University Press, 1994.
+
+\bibitem{DuponcheelAcademia}
+L. Duponcheel,
+\emph{A pointfree Yoneda lemma for endofunctors of functional categories},
+Working paper, \url{https://www.academia.edu/109957588}.
+
+\bibitem{CubicalAgdaRepo}
+L. Duponcheel,
+\emph{Cubical Agda formalization: CoEndoYoneda and its relation to Purity}, \\
+\url{https://github.com/LucDuponcheelAtGitHub/AgdaCoEndoYonedaAndPurity}, 2026.
+
+\bibitem{PalomarLeanRepo}
+L. Duponcheel,
+\emph{Palomar Lean~4 formalization: CoEndoYoneda and Purity}, \\
+\url{https://github.com/LucDuponcheelAtGitHub/coEndoYoneda-and-purity}, 2026.
+
+\bibitem{PSBP}
+L. Duponcheel,
+\emph{Program Specification Based Programming}, \\
+\url{https://github.com/LucDuponcheelAtGitHub/AgdaPSBP}, 2026.
+
+\bibitem{Fuhrmann1999}
+C. F\"{u}hrmann,
+\emph{Direct models of the computational lambda-calculus},
+Electronic Notes in Theoretical Computer Science \textbf{20} (1999), 245--292,
+\url{https://doi.org/10.1016/S1571-0661(04)80078-1}.
+
+\bibitem{Kelly1980}
+G. M. Kelly,
+\emph{A unified treatment of transfinite constructions for free algebras, free monoids, colimits,
+associated sheaves, and so on},
+Bulletin of the Australian Mathematical Society \textbf{22} (1980), no.~1, 1--83,
+\url{https://doi.org/10.1017/S0004972700006353}.
+
+\bibitem{Lawvere1963}
+F. W. Lawvere,
+\emph{Functorial semantics of algebraic theories},
+Proceedings of the National Academy of Sciences \textbf{50} (1963), no.~5, 869--872,
+\url{https://doi.org/10.1073/pnas.50.5.869}.
+
+\bibitem{LevyPowerThielecke2003}
+P. B. Levy, J. Power, and H. Thielecke,
+\emph{Modelling environments in call-by-value programming languages},
+Information and Computation \textbf{185} (2003), no.~2, 182--210,
+\url{https://doi.org/10.1016/S0890-5401(03)00088-9}.
+
+\bibitem{Moggi1991}
+E. Moggi,
+\emph{Notions of computation and monads},
+Information and Computation \textbf{93} (1991), no.~1, 55--92,
+\url{https://doi.org/10.1016/0890-5401(91)90052-4}.
+
+\bibitem{nLabIdempotentMonad}
+nLab authors,
+\emph{Idempotent monad}, \\
+\url{https://ncatlab.org/nlab/show/idempotent+monad}.
+
+\bibitem{nLabWellPointed}
+nLab authors,
+\emph{Well-pointed endofunctor}, \\
+\url{https://ncatlab.org/nlab/show/well-pointed+endofunctor}.
+
+\bibitem{PlotkinPower2002}
+G. Plotkin and J. Power,
+\emph{Notions of computation determine monads},
+in: \emph{Foundations of Software Science and Computation Structures (FoSSaCS 2002)},
+Lecture Notes in Computer Science, vol.~2303, Springer, 2002, pp.~342--356,
+\url{https://doi.org/10.1007/3-540-45931-6_24}.
+
+\bibitem{PlotkinPower2003}
+G. Plotkin and J. Power,
+\emph{Algebraic operations and generic effects},
+Applied Categorical Structures \textbf{11} (2003), no.~1, 69--94,
+\url{https://doi.org/10.1023/A:1023064908962}.
+
+\bibitem{PowerRobinson1997}
+J. Power and E. Robinson,
+\emph{Premonoidal categories and notions of computation},
+Mathematical Structures in Computer Science \textbf{7} (1997), no.~5, 453--468,
+\url{https://doi.org/10.1017/S0960129597002375}.
+
+\bibitem{PowerThielecke1999}
+J. Power and H. Thielecke,
+\emph{Closed Freyd- and $\kappa$-categories},
+in: \emph{Automata, Languages and Programming (ICALP 1999)},
+Lecture Notes in Computer Science, vol.~1644, Springer, 1999, pp.~625--634,
+\url{https://doi.org/10.1007/3-540-48523-6_59}.
+
+\end{thebibliography}
+
+\end{document}
