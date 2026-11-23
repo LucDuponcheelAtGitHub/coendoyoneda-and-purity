@@ -261,17 +261,38 @@ $\KFF : \Set \to \K(M)$, the Basic Functional Category structure is \textbf{equi
 idempotency (purity) of the monad $M$ (Theorem~\ref{thm:kleisli-purity}).}
 \end{quote}
 
-While monads are inherently \emph{pointful}, our Basic Functional Category axiom provides an
-elementary, \emph{pointfree specification-level characterization of purity} directly on the category
-of programs.
+While monads (Wadler~\cite{Wadler1992,Wadler1995}) and idioms/applicative functors
+(McBride and Paterson~\cite{McBridePaterson2008}) are inherently \emph{pointful}---operating on
+wrapped values via bind or application---Hughes's \emph{arrows}~\cite{Hughes2000} demonstrated that
+effectful computation can also be structured in a \emph{pointfree}, morphism-based style by lifting
+pure functions via a functorial embedding $\mathrm{arr} : (Z \to Y) \to \Hom_{\mathcal{C}}(Z, Y)$.
+Our Basic Functional Category characterization follows this pointfree philosophy: it does \emph{not}
+use monads at all, but only morphisms and functors on $\mathcal{C}$. Although our natural
+transformations $\eta$ and $\mu$ are monad-like in shape, they are purely pointfree categorical
+operations on $\mathcal{C}$. Theorem~\ref{thm:kleisli-purity} then reveals that, when instantiated
+on the Kleisli category $\K(M)$ of a monad $M$, this pointfree morphism-based axiom is equivalent
+to the pointful monadic idempotency law---providing an elementary, \emph{pointfree
+specification-level characterization of purity} directly on the category of programs.
 
 \subsection{Related Work on Categorical and Pointfree Characterizations of Purity}\label{sec:related}
 
 To position our contribution within the programming languages and category theory literature, we
-compare our Basic Functional Category characterization against established categorical frameworks for
-distinguishing pure and effectful computations:
+compare our Basic Functional Category characterization against established functional-programming
+and categorical frameworks for structuring and distinguishing pure versus effectful computations
+(summarized in Table~\ref{tab:related}):
 
 \begin{enumerate}[label=(\arabic*),nosep]
+  \item \textbf{Pointful monads and idioms vs.\ pointfree arrows~\cite{Wadler1992,Wadler1995,Hughes2000,McBridePaterson2008}:}
+  Wadler popularized Moggi's monads in functional programming~\cite{Wadler1992,Wadler1995}, and
+  McBride and Paterson introduced \emph{idioms} (applicative functors)~\cite{McBridePaterson2008},
+  both of which structure effects in a pointful style on value-level computations $M(Z)$. In
+  contrast, Hughes~\cite{Hughes2000} introduced \emph{arrows} as a pointfree generalization of
+  monads centered on morphisms $Z \leadsto Y$ and a pure-function lifting operator
+  $\mathrm{arr} : (Z \to Y) \to (Z \leadsto Y)$. Our functional functor $\FF : \Set \to \mathcal{C}$
+  is the categorical counterpart of Hughes's $\mathrm{arr}$ (without requiring arrow strength
+  $\mathrm{first}$), allowing us to formulate CoEndoYoneda and purity entirely at the pointfree
+  morphism level.
+\vspace{4pt}
   \item \textbf{Moggi's computational $\lambda$-calculus and strong monads~\cite{Moggi1991}:}
   Moggi pioneered the modeling of computational effects via strong monads $(M, \eta, \mu, \mathrm{st})$
   on a cartesian closed category $\mathcal{C}$. In Moggi's setting, pure programs are identified
@@ -304,18 +325,41 @@ distinguishing pure and effectful computations:
   $\FF$ and $\CYF(\FF(T))$. However, whereas Führmann axiomatizes thunkable morphisms inside a general
   effectful category using comonadic structural laws, our Definition~\ref{def:bfc} requires only a
   single natural transformation $\eta : \Id_{\mathcal{C}} \Rightarrow G$ and the single equation
-  $\eta_{\FF(Z)} = \FF(g)$ (or $\eta_{\FF(T)} = g(g(\ttstar))$).
+  $\eta_{\FF(Z)} = \FF(g_Z)$ (or $\eta_{\FF(T)} = g_{H_T}(g_T(\ttstar))$).
 \vspace{4pt}
-  \item \textbf{Lawvere theories and algebraic effects~\cite{Lawvere1963,PlotkinPower2002,PlotkinPower2003}:}
+  \item \textbf{Lawvere theories, algebraic effects, and enriched/synthetic settings~\cite{Lawvere1963,PlotkinPower2002,PlotkinPower2003}:}
   In the algebraic theory of effects developed by Plotkin and Power, finitary monads on $\Set$
   correspond to Lawvere theories $\mathcal{L}$, and effectful operations are modeled by generic effects
   or algebraic operations. Within this framework, idempotent monads on $\Set$ correspond to
   \emph{subterminal} (or propositional) Lawvere theories in which every $n$-ary operation reduces to a
   projection or constant, and on general categories idempotent monads correspond to reflective
   subcategories and well-pointed endofunctors ($M\eta = \eta M$)~\cite{Kelly1980,Borceux1994,nLabIdempotentMonad,nLabWellPointed}.
-  Our Theorem~\ref{thm:kleisli-purity} bridges this classical monadic characterization ($M\eta = \eta M$)
-  with the pointfree CoEndoYoneda structure on $\K(M)$.
+  Other categorical traditions capture purity via $\mathcal{V}$-enriched categories (where hom-objects
+  carry effect/order structure) or via modalities in synthetic domain theory. Unlike those richer
+  semantic settings, our framework requires only an ordinary locally small category $\mathcal{C}$ and a
+  single functor $\FF : \Set \to \mathcal{C}$, bridging the classical monadic condition
+  ($M\eta = \eta M$) with the pointfree CoEndoYoneda structure on $\K(M)$.
 \end{enumerate}
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}llllp{3.4cm}@{}}
+\toprule
+\textbf{Framework} & \textbf{Style} & \textbf{Ambient Structure} & \textbf{Purity Criterion} & \textbf{Comm.\ Effects ($\mathrm{Read}$/$\mathrm{Write}$)} \\
+\midrule
+Moggi / Wadler~\cite{Moggi1991,Wadler1995} & Pointful & Strong monad on CCC & Factors through $\KFF$ & Extrinsic (per morphism) \\
+Premonoidal / Freyd~\cite{PowerRobinson1997,LevyPowerThielecke2003} & Pointfree & Sym.\ premonoidal tensor & Centrality ($f \ltimes h = f \rtimes h$) & Admits both as central \\
+Führmann~\cite{Fuhrmann1999} & Pointfree & Thunking comonad & Thunkable / copy.\ / disc. & Excludes both ($|R|, |W| \ge 2$) \\
+Terminal law ($M(T) \cong T$) & Pointful & Monad on $\Set$ & $M(T) \cong T$ (discardable) & Admits $\mathrm{Read}\;R$; excludes $\mathrm{Write}\;W$ \\
+\textbf{Basic Func.\ Cat.\ (ours)} & \textbf{Pointfree} & \textbf{$\FF : \Set \to \mathcal{C}$ only} & \textbf{$\eta : \Id_{\mathcal{C}} \Rightarrow G$ (\eqref{eq:eta-eq}/\eqref{eq:eta-eq-T})} & \textbf{Excludes both (strict purity)} \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of categorical and pointfree characterizations of computational purity.}
+\label{tab:related}
+\end{table}
 
 \subsection{Provenance and Attribution of Results}\label{sec:provenance}
 
@@ -365,6 +409,15 @@ that $F(f) \star \tau_X = \tau_Y \star H(f)$ for every morphism $f : Y \to X$ in
 Finally, $\Set_\ell$ (abbreviated $\Set$ when the universe level $\ell$ is clear from context) denotes
 the category of sets at universe level $\ell$ (hSets in Cubical Agda, $\mathrm{Type}\;u$ in Lean~4), in
 which objects are sets and morphisms $f : Z \to Y$ are functions.
+
+\paragraph{Intuition for $\CYEF(Z)$ and $G$.}
+In $\Set$, an element $z \in Z$ is canonically equivalent to a \emph{global element} $\const_z : T \to Z$
+out of the singleton set $T = \{\ttstar\}$. In an arbitrary category $\mathcal{C}$ equipped with
+$\FF : \Set_\ell \to \mathcal{C}$, we internalize the hom-set $\Hom_{\mathcal{C}}(Z, Y)$ as an object
+$\CYEF(Z)(Y) = \FF(\Hom_{\mathcal{C}}(Z, Y))$ of $\mathcal{C}$. Specializing $Z$ to the lifted terminal
+object $\FF(T)$ produces the \emph{global-like endofunctor}
+$G(Y) = \FF(\Hom_{\mathcal{C}}(\FF(T), Y))$, which represents the object of global-like elements (or
+thunks) of $Y$ inside $\mathcal{C}$.
 
 \begin{definition}\label{def:cyef}
 Given a locally small category $\mathcal{C}$ and a \emph{functional functor}
@@ -470,8 +523,9 @@ A \emph{Basic Functional Category} over $(\mathcal{C}, \FF)$ consists of:
     \eta_Y \;:\; Y \longrightarrow G(Y)
     \qquad\bigl(\text{i.e., }\eta_Y \in \Hom_{\mathcal{C}}(Y, G(Y))\bigr)
   \]
-  for each $Y \in \mathrm{ob}(\mathcal{C})$, satisfying the naturality condition
-  $f \star \eta_X = \eta_Y \star G(f)$ for every morphism $f : Y \to X$ in $\mathcal{C}$;
+  for each $Y \in \mathrm{ob}(\mathcal{C})$, satisfying the diagrammatic naturality condition
+  $f \star \eta_X = \eta_Y \star G(f)$ (i.e., $Y \xrightarrow{f} X \xrightarrow{\eta_X} G(X)$ equals
+  $Y \xrightarrow{\eta_Y} G(Y) \xrightarrow{G(f)} G(X)$) for every morphism $f : Y \to X$ in $\mathcal{C}$;
 \vspace{4 pt}  
   \item The general parametric equational law: for every set $Z \in \mathrm{ob}(\Set_\ell)$,
   \begin{equation}\label{eq:eta-eq}
@@ -639,14 +693,22 @@ $\EF(y2x)$:
 \begin{align*}
   &\CYEF(Z)(y2x) \star (f_Z \to \tau_Z)_X \\
   &\quad= \CYEF(Z)(y2x) \star \bigl(\FF(\alpha_{f_Z, X}) \star \mu_{\EF(X)}\bigr)
-   \;=\; \bigl(\CYEF(Z)(y2x) \star \FF(\alpha_{f_Z, X})\bigr) \star \mu_{\EF(X)} \\
-  &\quad= \FF\bigl(z2y \mapsto f_Z \star (G\circ\EF)(z2y \star y2x)\bigr) \star \mu_{\EF(X)} \\
-  &\quad= \FF\bigl(z2y \mapsto (f_Z \star (G\circ\EF)(z2y)) \star (G\circ\EF)(y2x)\bigr) \star \mu_{\EF(X)} \\
+    &&\text{(by \eqref{eq:f-to-tau})} \\
+  &\quad= \bigl(\CYEF(Z)(y2x) \star \FF(\alpha_{f_Z, X})\bigr) \star \mu_{\EF(X)}
+    &&\text{(associativity)} \\
+  &\quad= \FF\bigl(z2y \mapsto f_Z \star (G\circ\EF)(z2y \star y2x)\bigr) \star \mu_{\EF(X)}
+    &&\text{(functoriality of $\FF$)} \\
+  &\quad= \FF\bigl(z2y \mapsto (f_Z \star (G\circ\EF)(z2y)) \star (G\circ\EF)(y2x)\bigr) \star \mu_{\EF(X)}
+    &&\text{(func.\ of $G \circ \EF$)} \\
   &\quad= \bigl(\FF(\alpha_{f_Z, Y}) \star (G \circ G)(\EF(y2x))\bigr) \star \mu_{\EF(X)}
-   \;=\; \FF(\alpha_{f_Z, Y}) \star \bigl((G \circ G)(\EF(y2x)) \star \mu_{\EF(X)}\bigr) \\
-  &\quad= \FF(\alpha_{f_Z, Y}) \star \bigl(\mu_{\EF(Y)} \star (G\circ\EF)(y2x)\bigr) \\
+    &&\text{(functoriality of $\FF$)} \\
+  &\quad= \FF(\alpha_{f_Z, Y}) \star \bigl((G \circ G)(\EF(y2x)) \star \mu_{\EF(X)}\bigr)
+    &&\text{(associativity)} \\
+  &\quad= \FF(\alpha_{f_Z, Y}) \star \bigl(\mu_{\EF(Y)} \star (G\circ\EF)(y2x)\bigr)
+    &&\text{(naturality of $\mu$)} \\
   &\quad= \bigl(\FF(\alpha_{f_Z, Y}) \star \mu_{\EF(Y)}\bigr) \star (G\circ\EF)(y2x)
-   \;=\; (f_Z \to \tau_Z)_Y \star (G\circ\EF)(y2x).
+   \;=\; (f_Z \to \tau_Z)_Y \star (G\circ\EF)(y2x)
+    &&\text{(assoc.\ and \eqref{eq:f-to-tau})}.
 \end{align*}
 
 \textbf{Part (ii): Section.}
@@ -657,19 +719,27 @@ $(h \mapsto h \star f_Z)$, the parametric unit law~\eqref{eq:eta-eq} at $Z = T$
 law~\eqref{eq:id-left}:
 \begin{align*}
   ((f_Z \to \tau_Z) \to f_Z)
-  &= \iotaZ \star \bigl(\FF(z2z \mapsto f_Z \star (G\circ\EF)(z2z)) \star \mu_{\EF(Z)}\bigr) \\
-  &= \bigl(g(\id_Z) \star \FF(z2z \mapsto f_Z \star (G\circ\EF)(z2z))\bigr) \star \mu_{\EF(Z)} \\
-  &= g\bigl(f_Z \star (G\circ\EF)(\id_Z)\bigr) \star \mu_{\EF(Z)} \\
+  &= \iotaZ \star \bigl(\FF(z2z \mapsto f_Z \star (G\circ\EF)(z2z)) \star \mu_{\EF(Z)}\bigr)
+    &&\text{(by \eqref{eq:tau-to-f}, \eqref{eq:f-to-tau})} \\
+  &= \bigl(g(\id_Z) \star \FF(z2z \mapsto f_Z \star (G\circ\EF)(z2z))\bigr) \star \mu_{\EF(Z)}
+    &&\text{(by \eqref{eq:def-iotaZ}, assoc.)} \\
+  &= g\bigl(f_Z \star (G\circ\EF)(\id_Z)\bigr) \star \mu_{\EF(Z)}
+    &&\text{(functoriality of $\FF$)} \\
   &= g(f_Z \star \id_{G(\EF(Z))}) \star \mu_{\EF(Z)} \;=\; g(f_Z) \star \mu_{\EF(Z)}
-   \;=\; g(\id_{\FF(T)} \star f_Z) \star \mu_{\EF(Z)} \\
-  &= \FF\bigl(t \mapsto g_T(t) \star f_Z\bigr) \star \mu_{\EF(Z)} \\
-  &= \bigl(\FF(g_T) \star G(f_Z)\bigr) \star \mu_{\EF(Z)} \\
-  &= \FF(g_T) \star \bigl(G(f_Z) \star \mu_{\EF(Z)}\bigr) \\
-  &= \eta_{\FF(T)} \star \bigl(G(f_Z) \star \mu_{\EF(Z)}\bigr) \\
-  &= \bigl(\eta_{\FF(T)} \star G(f_Z)\bigr) \star \mu_{\EF(Z)} \\
-  &= \bigl(f_Z \star \eta_{G(\EF(Z))}\bigr) \star \mu_{\EF(Z)} \\
+    &&\text{($G \circ \EF$ preserves $\id$)} \\
+  &= g(\id_{\FF(T)} \star f_Z) \star \mu_{\EF(Z)}
+    &&\text{(left identity in $\mathcal{C}$)} \\
+  &= \FF\bigl(t \mapsto g_T(t) \star f_Z\bigr) \star \mu_{\EF(Z)}
+    &&\text{(by Lemma~\ref{lem:g-id})} \\
+  &= \bigl(\FF(g_T) \star G(f_Z)\bigr) \star \mu_{\EF(Z)}
+    &&\text{(functoriality of $\FF$)} \\
+  &= \bigl(\eta_{\FF(T)} \star G(f_Z)\bigr) \star \mu_{\EF(Z)}
+    &&\text{(by \eqref{eq:eta-eq} at $Z = T$)} \\
+  &= \bigl(f_Z \star \eta_{G(\EF(Z))}\bigr) \star \mu_{\EF(Z)}
+    &&\text{(naturality of $\eta$)} \\
   &= f_Z \star \bigl(\eta_{G(\EF(Z))} \star \mu_{\EF(Z)}\bigr)
-   \;=\; f_Z \star \id_{G(\EF(Z))} \;=\; f_Z.
+   \;=\; f_Z \star \id_{G(\EF(Z))} \;=\; f_Z
+    &&\text{(assoc.\ and \eqref{eq:id-left})}.
 \end{align*}
 
 \textbf{Part (iii): Retraction.}
@@ -680,20 +750,28 @@ law~\eqref{eq:eta-eq} at the hom-set $H_{Z,Y} \coloneqq \Hom_{\mathcal{C}}(Z, Y)
 ($\FF(g_{H_{Z,Y}}) = \eta_{\FF(\Hom_{\mathcal{C}}(Z, Y))} = \eta_{\CYEF(Z)(Y)}$), naturality of $\eta$
 along $(\tau_Z)_Y$, and the left identity law~\eqref{eq:id-left}:
 \begin{align*}
-  ((\tau_Z \to f_Z) \to \tau_Z)_Y
-  &= \FF\bigl(z2y \mapsto (\iotaZ \star (\tau_Z)_Z) \star (G\circ\EF)(z2y)\bigr) \star \mu_{\EF(Y)} \\
-  &= \FF\bigl(z2y \mapsto \iotaZ \star ((\tau_Z)_Z \star (G\circ\EF)(z2y))\bigr) \star \mu_{\EF(Y)} \\
-  &= \FF\bigl(z2y \mapsto \iotaZ \star (\CYEF(Z)(z2y) \star (\tau_Z)_Y)\bigr) \star \mu_{\EF(Y)} \\
-  &= \FF\bigl(z2y \mapsto (\iotaZ \star \CYEF(Z)(z2y)) \star (\tau_Z)_Y\bigr) \star \mu_{\EF(Y)} \\
-  &= \FF\bigl(z2y \mapsto g(\id_Z \star z2y) \star (\tau_Z)_Y\bigr) \star \mu_{\EF(Y)} \\
-  &= \FF\bigl(z2y \mapsto g(z2y) \star (\tau_Z)_Y\bigr) \star \mu_{\EF(Y)} \\
-  &= \bigl(\FF(g_{H_{Z,Y}}) \star G((\tau_Z)_Y)\bigr) \star \mu_{\EF(Y)} \\
-  &= \FF(g_{H_{Z,Y}}) \star \bigl(G((\tau_Z)_Y) \star \mu_{\EF(Y)}\bigr) \\
-  &= \eta_{\CYEF(Z)(Y)} \star \bigl(G((\tau_Z)_Y) \star \mu_{\EF(Y)}\bigr) \\
-  &= \bigl(\eta_{\CYEF(Z)(Y)} \star G((\tau_Z)_Y)\bigr) \star \mu_{\EF(Y)} \\
-  &= \bigl((\tau_Z)_Y \star \eta_{G(\EF(Y))}\bigr) \star \mu_{\EF(Y)} \\
-  &= (\tau_Z)_Y \star \bigl(\eta_{G(\EF(Y))} \star \mu_{\EF(Y)}\bigr)
-   \;=\; (\tau_Z)_Y \star \id_{G(\EF(Y))} \;=\; (\tau_Z)_Y.
+  &((\tau_Z \to f_Z) \to \tau_Z)_Y \\
+  &\quad= \FF\bigl(z2y \mapsto (\iotaZ \star (\tau_Z)_Z) \star (G\circ\EF)(z2y)\bigr) \star \mu_{\EF(Y)}
+    &&\text{(by \eqref{eq:tau-to-f}, \eqref{eq:f-to-tau})} \\
+  &\quad= \FF\bigl(z2y \mapsto \iotaZ \star ((\tau_Z)_Z \star (G\circ\EF)(z2y))\bigr) \star \mu_{\EF(Y)}
+    &&\text{(associativity)} \\
+  &\quad= \FF\bigl(z2y \mapsto \iotaZ \star (\CYEF(Z)(z2y) \star (\tau_Z)_Y)\bigr) \star \mu_{\EF(Y)}
+    &&\text{(naturality of $\tau_Z$)} \\
+  &\quad= \FF\bigl(z2y \mapsto (\iotaZ \star \CYEF(Z)(z2y)) \star (\tau_Z)_Y\bigr) \star \mu_{\EF(Y)}
+    &&\text{(associativity)} \\
+  &\quad= \FF\bigl(z2y \mapsto g(\id_Z \star z2y) \star (\tau_Z)_Y\bigr) \star \mu_{\EF(Y)}
+    &&\text{(functoriality of $\FF$)} \\
+  &\quad= \FF\bigl(z2y \mapsto g(z2y) \star (\tau_Z)_Y\bigr) \star \mu_{\EF(Y)}
+    &&\text{(left identity in $\mathcal{C}$)} \\
+  &\quad= \bigl(\FF(g_{H_{Z,Y}}) \star G((\tau_Z)_Y)\bigr) \star \mu_{\EF(Y)}
+    &&\text{(functoriality of $\FF$)} \\
+  &\quad= \bigl(\eta_{\CYEF(Z)(Y)} \star G((\tau_Z)_Y)\bigr) \star \mu_{\EF(Y)}
+    &&\text{(by \eqref{eq:eta-eq} at $H_{Z,Y}$)} \\
+  &\quad= \bigl((\tau_Z)_Y \star \eta_{G(\EF(Y))}\bigr) \star \mu_{\EF(Y)}
+    &&\text{(naturality of $\eta$)} \\
+  &\quad= (\tau_Z)_Y \star \bigl(\eta_{G(\EF(Y))} \star \mu_{\EF(Y)}\bigr)
+   \;=\; (\tau_Z)_Y \star \id_{G(\EF(Y))} \;=\; (\tau_Z)_Y
+    &&\text{(assoc.\ and \eqref{eq:id-left})}.
 \end{align*}
 By extensionality of natural transformations, $((\tau_Z \to f_Z) \to \tau_Z) = \tau_Z$.
 \end{proof}
@@ -719,16 +797,25 @@ $\EF = \Id_{\mathcal{C}}$ and $Z = \FF(T)$. Then in any Basic Functional Categor
 \end{proposition}
 
 \begin{proof}
-Unfolding \eqref{eq:tau-to-f} at $\tau = \id_G$, and applying right identity, Lemma~\ref{lem:g-id},
-and Proposition~\ref{prop:eta-eq-T}:
-\[
+Unfolding the forward map~\eqref{eq:tau-to-f} at $\tau_Z = \id_G$ and $Z = \FF(T)$ (whose component at
+$\FF(T)$ is $(\id_G)_{\FF(T)} = \id_{G(\FF(T))}$), using definition~\eqref{eq:def-iotaZ} of
+$\iota_{\FF(T)} = g_{H_T}(\id_{\FF(T)})$, applying right identity in $\mathcal{C}$, Lemma~\ref{lem:g-id}
+($\id_{\FF(T)} = g_T(\ttstar)$), and the terminal unit law~\eqref{eq:eta-eq-T} of
+Proposition~\ref{prop:eta-eq-T}:
+\begin{align*}
   \eta_{\FF(T)}^{\mathrm{CY}}
-  \;=\; \iota_{\FF(T)} \star \id_{G(\FF(T))}
-  \;=\; g(\id_{\FF(T)})
-  \;=\; g\bigl(g(\ttstar)\bigr)
-  \;=\; \eta_{\FF(T)}.
+  &= \iota_{\FF(T)} \star (\id_G)_{\FF(T)}
+    &&\text{(by \eqref{eq:tau-to-f} at $\tau = \id_G$)} \\
+  &= g_{H_T}(\id_{\FF(T)}) \star \id_{G(\FF(T))}
+    &&\text{(by \eqref{eq:def-iotaZ})} \\
+  &= g_{H_T}(\id_{\FF(T)})
+    &&\text{(right identity in $\mathcal{C}$)} \\
+  &= g_{H_T}\bigl(g_T(\ttstar)\bigr)
+    &&\text{(by Lemma~\ref{lem:g-id})} \\
+  &= \eta_{\FF(T)}
+    &&\text{(by Proposition~\ref{prop:eta-eq-T}, \eqref{eq:eta-eq-T})}.
   \qedhere
-\]
+\end{align*}
 \end{proof}
 
 \subsection{Canonical Concrete Instance: $\Set$ as a Functional Category}
@@ -1110,6 +1197,42 @@ and~\eqref{eq:kleisli-G-map} yields naturality:
 Finally, by~\eqref{eq:kleisli-kff-g}, $\eta_Z(z) = \mathrm{mPure}_{G(Z)}(\_ \mapsto \mathrm{mPure}_Z(z))
 = \KFF(g_Z)(z)$ holds definitionally by reflexivity for every set $Z$, establishing~\eqref{eq:eta-eq}.
 \end{proof}
+
+\begin{remark}[Pointfree Morphism-Based Purity vs.\ Pointful Monadic Idempotency]\label{rem:pointfree-vs-pointful}
+It is important to distinguish the \emph{categorical specification} from its \emph{monadic
+instantiation}. Definition~\ref{def:bfc} (Basic Functional Category) does \emph{not} mention monads at
+all: it is formulated purely in terms of morphisms and functors on an abstract category $\mathcal{C}$
+equipped with $\FF : \Set_\ell \to \mathcal{C}$. Although $\eta : \Id_{\mathcal{C}} \Rightarrow G$ and
+$\mu : G \circ G \Rightarrow G$ are ``monad-like'' in shape, they are entirely \emph{pointfree}
+natural transformations between endofunctors on $\mathcal{C}$ (in the spirit of Hughes's pointfree
+arrows~\cite{Hughes2000} rather than Wadler's pointful monads~\cite{Wadler1995}). A monad $M$ enters
+only when we test this pointfree specification on a Kleisli category $\K(M)$.
+
+Why is monad idempotency the right pointful counterpart to computational purity on $\Set_\ell$?
+First, as noted in Subsection~\ref{subsec:limitations}(2), on $\Set_\ell$ the only idempotent monads
+are the identity monad $M \cong \Id_{\Set_\ell}$ (pure values) and the trivial/terminal monads
+($M(Z) \cong T$, or $M(\emptyset) = \emptyset$ and $M(Z) \cong T$ for $Z \neq \emptyset$); every
+non-trivial computational effect in Theorem~\ref{thm:examples} fails idempotency. Second,
+equationally, $\mathrm{IsPure}(M)$ ($\mathrm{mApply}\;(\mathrm{mPure} \circ \mathrm{mPure})\;mz =
+\mathrm{mPure}(mz)$) asserts that executing a computation $mz$ at the outer level and wrapping its
+pure result twice is indistinguishable from deferring $mz$ untouched inside an outer pure wrapper---the
+exact equational signature of referential transparency (absence of observable side effects across
+thunking).
+\end{remark}
+
+\begin{remark}[Weakening Basic Functional Categories to the Terminal Law~\eqref{eq:eta-eq-T}]\label{rem:weakening-bfc}
+Because the forward direction of Theorem~\ref{thm:kleisli-purity} uses only naturality of $\eta$ and
+the terminal specialization~\eqref{eq:eta-eq-T} ($\eta_{\FF(T)} = g_{H_T}(g_T(\ttstar))$), the full
+parametric law~\eqref{eq:eta-eq} adds no extra discriminating power for Kleisli categories
+$(\K(M), \KFF)$ beyond~\eqref{eq:eta-eq-T}. Consequently, one could refactor the hierarchy by
+associating the weaker terminal law~\eqref{eq:eta-eq-T} with a \emph{Basic Functional Category}
+(which already suffices for Theorem~\ref{thm:kleisli-purity} and Proposition~\ref{prop:origin-eta})
+and associating the stronger generic parametric law~\eqref{eq:eta-eq} with a \emph{Functional
+Category} (where it is actually used in the retraction proof of Theorem~\ref{thm:coendoyoneda}(iii)
+at $H_{Z,Y} = \Hom_{\mathcal{C}}(Z, Y)$); Proposition~\ref{prop:eta-eq-T} then trivially verifies that
+the stronger law implies the weaker one. We retain~\eqref{eq:eta-eq} in Definition~\ref{def:bfc} here
+to maintain exact alignment with our mechanized Cubical Agda and Lean~4 developments.
+\end{remark}
 
 \subsection{The Terminal Subsingleton Theorem}
 
@@ -1493,6 +1616,23 @@ Both formalizations are 100\% machine-checked with zero postulates, zero unprove
 in this paper, the Cubical Agda development (\texttt{CoEndoYoneda.lagda.md}~\cite{CubicalAgdaRepo}),
 and the Palomar-verified Lean~4 formalization (\texttt{coEndoYoneda-and-purity}~\cite{PalomarLeanRepo}).
 
+\paragraph{Mechanization Details: Definitional Equalities, Extensionality, and Universe Levels.}
+Across both proof assistants, several key coherence laws hold \emph{definitionally} (by \texttt{refl}
+in Cubical Agda and \texttt{rfl} in Lean~4): in particular, in the canonical model
+$(\Set_\ell, \Id_{\Set_\ell})$ (Proposition~\ref{prop:set-fc}), naturality of $\eta$ and $\mu$, the
+parametric law~\eqref{eq:eta-eq}, and the left identity law~\eqref{eq:id-left} all reduce by
+$\beta\eta$-conversion; similarly, in the ($\Longleftarrow$) direction of Theorem~\ref{thm:kleisli-purity},
+the parametric law $\eta_Z = \KFF(g_Z)$ holds definitionally once the candidate unit is chosen. By
+contrast, the retraction property of Theorem~\ref{thm:coendoyoneda}(iii) requires natural-transformation
+extensionality (\texttt{makeNatTransPath} in Cubical Agda, \texttt{NatTrans.ext} in Lean~4), and the
+Kleisli proofs use function extensionality (\texttt{funExt} in Cubical Agda, \texttt{funext} in Lean~4).
+Finally, the two-level typing of $g_Z$ and $\FF(g_Z)$ (Remark~\ref{rem:g-typing}) is handled uniformly
+via universe polymorphism: fixing a single universe level $\ell$ (Agda) or $u$ (Lean~4) with a
+locally small category $\mathcal{C}$ (\texttt{LargeCategory.\{u\}} in Mathlib, whose hom-sets live in
+$\mathrm{Type}\;u$) ensures that $\Hom_{\mathcal{C}}(\FF(T), \FF(Z))$ lives in the same universe as $Z$,
+allowing $\FF$ to be applied both to $\const_z : T \to Z$ and to
+$g_Z : Z \to \Hom_{\mathcal{C}}(\FF(T), \FF(Z))$ without universe bumps.
+
 \begin{table}[htbp]
 \centering
 \scriptsize
@@ -1557,6 +1697,12 @@ C. F\"{u}hrmann,
 Electronic Notes in Theoretical Computer Science \textbf{20} (1999), 245--292,
 \url{https://doi.org/10.1016/S1571-0661(04)80078-1}.
 
+\bibitem{Hughes2000}
+J. Hughes,
+\emph{Generalising monads to arrows},
+Science of Computer Programming \textbf{37} (2000), no.~1--3, 67--111,
+\url{https://doi.org/10.1016/S0167-6423(99)00023-4}.
+
 \bibitem{Kelly1980}
 G. M. Kelly,
 \emph{A unified treatment of transfinite constructions for free algebras, free monoids, colimits,
@@ -1575,6 +1721,12 @@ P. B. Levy, J. Power, and H. Thielecke,
 \emph{Modelling environments in call-by-value programming languages},
 Information and Computation \textbf{185} (2003), no.~2, 182--210,
 \url{https://doi.org/10.1016/S0890-5401(03)00088-9}.
+
+\bibitem{McBridePaterson2008}
+C. McBride and R. Paterson,
+\emph{Applicative programming with effects},
+Journal of Functional Programming \textbf{18} (2008), no.~1, 1--13,
+\url{https://doi.org/10.1017/S0956796807006326}.
 
 \bibitem{Moggi1991}
 E. Moggi,
@@ -1617,6 +1769,20 @@ J. Power and H. Thielecke,
 in: \emph{Automata, Languages and Programming (ICALP 1999)},
 Lecture Notes in Computer Science, vol.~1644, Springer, 1999, pp.~625--634,
 \url{https://doi.org/10.1007/3-540-48523-6_59}.
+
+\bibitem{Wadler1992}
+P. Wadler,
+\emph{The essence of functional programming},
+in: \emph{Proceedings of the 19th ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages (POPL 1992)},
+ACM, 1992, pp.~1--14,
+\url{https://doi.org/10.1145/143165.143169}.
+
+\bibitem{Wadler1995}
+P. Wadler,
+\emph{Monads for functional programming},
+in: \emph{Advanced Functional Programming (AFP 1995)},
+Lecture Notes in Computer Science, vol.~925, Springer, 1995, pp.~24--52,
+\url{https://doi.org/10.1007/3-540-59451-5_2}.
 
 \end{thebibliography}
 
