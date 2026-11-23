@@ -150,13 +150,10 @@ implications for commutative effects, and limitations of the framework
 \noindent \textbf{Provenance and Attribution Statement.}
 The mathematical formulation of Basic Functional Categories, Functional Categories, the CoEndoYoneda
 Lemma, and the equational proof proper of the CoEndoYoneda Isomorphism Theorem were conceived and
-proved by the author (Luc Duponcheel)~\cite{DuponcheelAcademia}. By contrast, the Lean~4
+proved by the author (Luc Duponcheel). By contrast, the Lean~4
 mechanization and the discovery and proof of the exact equivalence between the Basic Functional
 Category structure on $\K(M)$ and monad idempotency/purity were established collaboratively
-using \emph{Gemini} (Google DeepMind Antigravity) guided by mathematical prompts from the author. Both
-the Cubical Agda development~\cite{CubicalAgdaRepo} and the Palomar-verified Lean~4
-formalization~\cite{PalomarLeanRepo} are machine-checked with zero unproved axioms or
-postulates.
+using \emph{Gemini} (Google DeepMind Antigravity) guided by mathematical prompts from the author.
 \end{abstract}
 
 \noindent \textbf{Keywords:} CoYoneda lemma, pointfree category theory, functional categories, Kleisli
@@ -369,7 +366,7 @@ Registry), we state the exact provenance of each contribution in this work:
   \item \textbf{Human-authored core theory and proof proper:} The categorical definitions of Basic
   Functional Categories and Functional Categories, the statement of the CoEndoYoneda Isomorphism
   Theorem (Theorem~\ref{thm:coendoyoneda}), and its complete pointfree equational proof proper were
-  conceived, designed, and proved by Luc Duponcheel~\cite{DuponcheelAcademia}.
+  conceived, designed, and proved by Luc Duponcheel.
 \vspace{4pt}
   \item \textbf{AI-assisted purity equivalence and formal mechanizations:} The Lean~4 formalization
   and the discovery and proof of the exact equivalence between the Basic Functional Category structure
@@ -675,8 +672,6 @@ Consequently, $(\tau_Z \to f_Z)$ and $(f_Z \to \tau_Z)$ form a bijection (isomor
 \end{theorem}
 
 \begin{proof}
-We follow the equational chains formalized in~\cite{CubicalAgdaRepo} and mechanized
-in~\cite{PalomarLeanRepo}.
 
 \textbf{Part (i): Naturality of $f_Z \to \tau_Z$.}
 First, for any morphisms $y2x : Y \to X$ and $z2y : Z \to Y$ in $\mathcal{C}$, functoriality of
@@ -1053,8 +1048,6 @@ More specifically, there is a striking implication associated with the two direc
 \end{theorem}
 
 \begin{proof}
-We provide the complete, self-contained equational proof of both directions, matching the mechanized
-derivations in~\cite{CubicalAgdaRepo,PalomarLeanRepo}.
 
 \textbf{Direction ($\Longrightarrow$): $\mathrm{BasicFunctionalCategory}(\K(M), \KFF) \implies \mathrm{Idempotent}(M)$.}
 Suppose $(\K(M), \KFF)$ is a Basic Functional Category with unit natural transformation
@@ -1611,11 +1604,6 @@ framework, which clarifies both its power as a purity specification and its scop
 
 \section{Formal Verification in Cubical Agda and Lean 4}\label{sec:formalization}
 
-Both formalizations are 100\% machine-checked with zero postulates, zero unproved axioms, and zero
-\texttt{sorry}s. Table~\ref{tab:alignment} provides the exact alignment between the mathematical results
-in this paper, the Cubical Agda development (\texttt{CoEndoYoneda.lagda.md}~\cite{CubicalAgdaRepo}),
-and the Palomar-verified Lean~4 formalization (\texttt{coEndoYoneda-and-purity}~\cite{PalomarLeanRepo}).
-
 \paragraph{Mechanization Details: Definitional Equalities, Extensionality, and Universe Levels.}
 Across both proof assistants, several key coherence laws hold \emph{definitionally} (by \texttt{refl}
 in Cubical Agda and \texttt{rfl} in Lean~4): in particular, in the canonical model
@@ -1671,20 +1659,10 @@ F. Borceux,
 \emph{Handbook of Categorical Algebra 2: Categories and Structures},
 Encyclopedia of Mathematics and its Applications, vol.~51, Cambridge University Press, 1994.
 
-\bibitem{DuponcheelAcademia}
-L. Duponcheel,
-\emph{A pointfree Yoneda lemma for endofunctors of functional categories},
-Working paper, \url{https://www.academia.edu/109957588}.
-
 \bibitem{CubicalAgdaRepo}
 L. Duponcheel,
 \emph{Cubical Agda formalization: CoEndoYoneda and its relation to Purity}, \\
 \url{https://github.com/LucDuponcheelAtGitHub/AgdaCoEndoYonedaAndPurity}, 2026.
-
-\bibitem{PalomarLeanRepo}
-L. Duponcheel,
-\emph{Palomar Lean~4 formalization: CoEndoYoneda and Purity}, \\
-\url{https://github.com/LucDuponcheelAtGitHub/coEndoYoneda-and-purity}, 2026.
 
 \bibitem{PSBP}
 L. Duponcheel,
