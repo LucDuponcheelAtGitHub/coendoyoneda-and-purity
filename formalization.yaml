@@ -16,10 +16,10 @@ project:
     Functional Category, and prove that for the Kleisli category KleisliCat M
     of a lawful monad M with canonical identity-on-objects functor KFF,
     BasicFunctionalCategory (KleisliCat M) (KFF M) holds if and only if M is an
-    idempotent (pure) monad. Finally, we prove the Borceux/Lawvere-Manes
-    terminal subsingleton theorem (IsPure M → Subsingleton (M T)) and classify
-    seven standard computational effects (Option, List, Read, Write, State,
-    Cont, and ErrorState/IO).
+    idempotent (pure) monad. Finally, we derive the terminal subsingleton
+    theorem (IsPure M → Subsingleton (M T)) and classify seven standard
+    computational effects (Option, List, Read, Write, State, Cont, and
+    ErrorState/IO).
   authors:
     - "Luc Duponcheel"
   license: "Apache-2.0"
@@ -41,28 +41,11 @@ sources:
     note: "Accompanying paper presenting the CoEndoYoneda Isomorphism Theorem and the pointfree Kleisli characterization of purity."
     license: "Apache-2.0"
     author_endorsement: "participated"
-  - title: "Handbook of Categorical Algebra 2: Categories and Structures"
-    authors:
-      - "F. Borceux"
-    id: ""
-    type: "book"
-    location: "Encyclopedia of Mathematics and its Applications, vol.~51, Cambridge University Press, 1994"
-    relationship: "idempotency and sub-singleton"
-    note: "theorem isPure_implies_monadicTerminalTypeSubSingleton_lemma"
-    license: ""
-    author_endorsement: "none"
-  - title: "Functorial semantics of algebraic theories"
-    authors:
-      - "F. W. Lawvere"
-    id: "https://doi.org/10.1073/pnas.50.5.869"
-    type: "book"
-    location: "Proceedings of the National Academy of Sciences \textbf{50} (1963), no.~5, 869--872"
-    relationship: "idempotency and sub-singleton"
-    note: "theorem isPure_implies_monadicTerminalTypeSubSingleton_lemma"
-    license: ""
-    author_endorsement: "none"
 
-related_formalizations: []
+related_formalizations:
+  - id: "https://github.com/LucDuponcheelAtGitHub/utrecht_2026_10_26/blob/main/src/CoEndoYoneda.lagda.md"
+    relationship: "ports"
+    note: "Companion Cubical Agda formalization of Basic Functional Categories, Functional Categories, the CoEndoYoneda Isomorphism Theorem, the Kleisli purity equivalence, and the seven computational effect classifications, with which this Lean 4 formalization is synchronized in terminology and structure."
 
 status:
   scope: >-
@@ -146,7 +129,7 @@ alignment:
       lean: "CoEndoYonedaAndPurity.isPure_implies_monadicTerminalTypeSubSingleton"
       module: "Solution"
       status: "proved"
-      note: "Proves the Borceux/Lawvere-Manes theorem that every mt : M T equals pure tt* for a pure monad M."
+      note: "Derives directly from IsPure M that every mt : M T equals pure tt* (and hence M T is a subsingleton)."
     - source: "Theorem 5.1 (thm:examples)"
       lean: "CoEndoYonedaAndPurity.maybe_not_pure"
       module: "Solution"

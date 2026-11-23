@@ -16,7 +16,7 @@ Formal verification in Lean 4 of **Basic Functional Categories**, **Functional C
 4. **`CoEndoYonedaAndPurity.set_is_functional_category`**: Proves that `Type u` (`SET`) with $\mathrm{FF} = \mathbf{1}_{\mathrm{Type}\,u}$ is a Functional Category where `η_eq`, `η_eq_T`, and `id_left` hold definitionally by `rfl`.
 5. **`CoEndoYonedaAndPurity.idempotent_iff_isPure`**: Equivalence between `Idempotent M` ($\mathrm{mMap}\;\mathrm{mPure} = \mathrm{mPure}$) and `IsPure M` ($\mathrm{mApply}\;(\mathrm{mPure} \circ \mathrm{mPure}) = \mathrm{mPure}$).
 6. **`CoEndoYonedaAndPurity.kleisliBasicFunctionalCategory_iff_idempotent`**: For any lawful monad $M$, $(\mathbf{Kl}(M), \mathrm{KFF}(M))$ is a `BasicFunctionalCategory` if and only if $M$ is `Idempotent`.
-7. **`CoEndoYonedaAndPurity.isPure_implies_monadicTerminalTypeSubSingleton`**: The Borceux / Lawvere–Manes equational proof that `IsPure M` implies every $mt : M(T)$ equals $\mathrm{pure}(\mathrm{tt}^*)$ (and hence `Subsingleton (M T)`).
+7. **`CoEndoYonedaAndPurity.isPure_implies_monadicTerminalTypeSubSingleton`**: Direct equational derivation showing that `IsPure M` implies every $mt : M(T)$ equals $\mathrm{pure}(\mathrm{tt}^*)$ (and hence `Subsingleton (M T)`).
 8. **Concrete Effect Classifications**:
    - `maybe_not_pure` ($\neg\,\mathrm{IsPure}\;\mathrm{Option}$)
    - `list_not_pure` ($\neg\,\mathrm{IsPure}\;\mathrm{List}$)
@@ -24,7 +24,7 @@ Formal verification in Lean 4 of **Basic Functional Categories**, **Functional C
    - `write_purity_implies` ($\mathrm{IsPure}(\mathrm{Write}\;W) \to \mathrm{Subsingleton}\;W$)
    - `state_purity_implies` ($\mathrm{IsPure}(\mathrm{State}\;S) \to \mathrm{Subsingleton}\;S$)
    - `cont_purity_implies` ($\mathrm{IsPure}(\mathrm{Cont}\;R) \to \mathrm{Subsingleton}\;R$)
-   - `io_not_pure` ($\neg\,\mathrm{IsPure}(\mathrm{ErrorState}\;E\;S)$)
+   - `io_not_pure`, requiring inhabited error and state types, ($\neg\,\mathrm{IsPure}(\mathrm{ErrorState}\;E\;S)$)
 
 ## Repository Structure
 

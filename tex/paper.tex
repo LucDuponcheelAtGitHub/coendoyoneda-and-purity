@@ -134,8 +134,8 @@ full parametric law~\eqref{eq:eta-eq} definitionally.
 \vspace{4pt}
 
 \noindent Thus, the Basic Functional Category law provides an elementary, pointfree,
-specification-level characterization of \emph{computational purity}. We further prove the
-Borceux/Lawvere--Manes terminal subsingleton theorem ($M(T) \cong T$ for every pure monad,
+specification-level characterization of \emph{computational purity}. We further derive the
+terminal subsingleton theorem ($M(T) \cong T$ for every pure monad,
 Theorem~\ref{thm:terminal-subsingleton}), provide complete equational classifications of seven
 standard computational effects ($\mathrm{Option}$, $\mathrm{List}$, $\mathrm{Read}\;R$,
 $\mathrm{Write}\;W$, $\mathrm{State}\;S$, $\mathrm{Cont}\;R$, and $\mathrm{ErrorState}\;E\;S$,
@@ -329,7 +329,7 @@ Registry), we state the exact provenance of each contribution in this work:
 \vspace{4pt}
   \item \textbf{AI-assisted purity equivalence and formal mechanizations:} The Lean~4 formalization
   and the discovery and proof of the exact equivalence between the Basic Functional Category structure
-  on $\K(M)$ and monad idempotency/purity (Theorem~\ref{thm:kleisli-purity}), the Borceux/Lawvere--Manes
+  on $\K(M)$ and monad idempotency/purity (Theorem~\ref{thm:kleisli-purity}), the
   terminal subsingleton diagnostic (Theorem~\ref{thm:terminal-subsingleton}), the formal classification
   of the seven computational effects and strict separation theorem (Section~\ref{sec:examples}), and the
   synchronized Cubical Agda and Lean~4 implementations were developed using \textbf{Gemini} (Google
@@ -1113,8 +1113,8 @@ Finally, by~\eqref{eq:kleisli-kff-g}, $\eta_Z(z) = \mathrm{mPure}_{G(Z)}(\_ \map
 
 \subsection{The Terminal Subsingleton Theorem}
 
-A classical property of idempotent monads (building on Lawvere and Manes, with the equational proof
-presented in Borceux~\cite{Borceux1994}) is that any monadic computation over the terminal type $T$ must
+An immediate equational consequence of monad idempotency (which we derive directly here from
+$\mathrm{IsPure}(M)$) is that any monadic computation over the terminal type $T$ must
 be equal to $\mathrm{mPure}_T(\ttstar)$:
 
 \begin{theorem}\label{thm:terminal-subsingleton}
@@ -1153,7 +1153,7 @@ purity law~\eqref{eq:ispure}, and the left unit law~\eqref{eq:monad-left-unit} y
 \end{proof}
 
 In my opinion, the proof above is an example of a \emph{theorem proving pearl} of
-exceptional beauty. Using other statements it proves that any $mt$ necessarily equals
+exceptional beauty. Using other propositions it proves that any $mt$ necessarily equals
 $\mathrm{mPure}_T(\ttstar)$. 
 
 \section{Classification of Concrete Computational Effects}\label{sec:examples}

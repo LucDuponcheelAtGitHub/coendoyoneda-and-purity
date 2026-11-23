@@ -1,0 +1,20 @@
+\contentsline {section}{\numberline {1}Introduction and Motivation}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}From Pointful CoYoneda to Pointfree CoEndoYoneda}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Theory Meets Practice: ``Every Disadvantage Has Its Advantage''}{5}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Related Work on Categorical and Pointfree Characterizations of Purity}{5}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Provenance and Attribution of Results}{6}{subsection.1.4}%
+\contentsline {section}{\numberline {2}Basic Functional Categories}{6}{section.2}%
+\contentsline {paragraph}{Conventions and Notation.}{6}{section*.2}%
+\contentsline {section}{\numberline {3}Functional Categories and the CoEndoYoneda Isomorphism}{9}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Statement and Construction of the CoEndoYoneda Isomorphism}{9}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Connecting the CoEndoYoneda Isomorphism to $\eta $ at $\mathrm {FF}(T)$}{11}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Canonical Concrete Instance: $\mathbf {SET}$ as a Functional Category}{12}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Relationship to the Classical CoYoneda Lemma: Naturality, Universality, Generalization, and Specialization}{12}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Purity, Idempotent Monads, and Kleisli Categories}{13}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Monad Formulations and Characterizations of Purity}{13}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Equivalence Between Kleisli Basic Functional Categories and Monad Idempotency}{14}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}The Terminal Subsingleton Theorem}{17}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Classification of Concrete Computational Effects}{17}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Strict Separation Between Basic Functional Category Purity and Terminal Subsingleton Triviality}{20}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Scope, Implications for Commutative Effects, and Limitations of the Framework}{21}{subsection.5.2}%
+\contentsline {section}{\numberline {6}Formal Verification in Cubical Agda and Lean 4}{22}{section.6}%

@@ -432,7 +432,7 @@ def idempotent_to_kleisliBasicFunctionalCategory
   }
 
 /-- `is-pure-implies-monadic-terminal-type-subsingleton`
-The Borceux / Lawvere–Manes equational proof that `IsPure M` implies every `mt : M T` equals
+Direct equational derivation showing that `IsPure M` implies every `mt : M T` equals
 `pure tt_star`. -/
 theorem isPure_implies_monadicTerminalTypeSubSingleton_lemma
     (ep : IsPure M) : MonadicTerminalTypeSubSingleton M := by
